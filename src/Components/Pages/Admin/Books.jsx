@@ -130,7 +130,16 @@ const Books = () => {
         });
 
         if (editedData.image) {
-            formData.append('image', editedData.image, editedData.image.name);
+            if (editedData.image instanceof Blob) {
+              // If it's already a Blob (File is a type of Blob)
+              formData.append('image', editedData.image, editedData.image.name);
+            } else if (typeof editedData.image === 'string') {
+              // If it's a string (likely a URL or path), we don't need to append it
+              // The backend will keep the existing image
+            } else {
+              // If it's neither a Blob nor a string, we have unexpected data
+              console.error('Unexpected image data type:', typeof editedData.image);
+            }
           }
 
           formData.append('_method', 'PUT');

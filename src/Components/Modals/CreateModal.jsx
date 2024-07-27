@@ -66,6 +66,7 @@ const CreateCategoryModal = ({ open, handleClose, handleCreate, createableColumn
   };
 
   const onCreate = () => {
+    setFileName('');
     handleCreate(newCategoryData);
     handleClose();
     setNewCategoryData(initialData); // Reset form after creation

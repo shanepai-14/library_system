@@ -77,6 +77,7 @@ const EditModal = ({
 
   const onSave = () => {
     handleSave({ ...rowData, ...editedData });
+    setFileName('');
     handleClose();
   };
 
