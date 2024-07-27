@@ -1,10 +1,10 @@
 import React from 'react';
-
+import CustomizedTables from '../Tables/CustomTable';
 const Categories = () => {
     return (
-        <div className=''>
-            Content Here
-        </div>
+        <>
+         <CustomizedTables />
+        </>
     )
 }
 

@@ -1,44 +1,98 @@
-import React from 'react'
-import ReactDOM from 'react-dom/client'
-import Login  from './Login.jsx'
-import Layout from './Components/Layout/Dashboard.jsx'
-import Dashboard from './Components/Pages/Dashboard.jsx'
-import Categories from './Components/Pages/Categories.jsx'
-import './index.css'
-import { QueryClient, QueryClientProvider } from 'react-query';
-import { createBrowserRouter,RouterProvider } from 'react-router-dom'
+import React from "react";
+import ReactDOM from "react-dom/client";
+import Login from "./Login.jsx";
+import Layout from "./Components/Layout/Dashboard.jsx";
+import StudentLayout from "./Components/Layout/studentDashboard.jsx";
+import Dashboard from "./Components/Pages/Dashboard.jsx";
+import Categories from "./Components/Pages/Admin/Categories.jsx";
+import Authors from "./Components/Pages/Admin/Author.jsx";
+import Books from "./Components/Pages/Admin/Books.jsx";
+import SignUp from "./Signup.jsx";
+import ProtectedRoute from "./Components/Auth/ProtectedRoute.jsx";
+import Unauthorized from "./Components/Pages/Unathorized.jsx";
+import AutoRedirect from "./Components/Auth/AutoRedirect.jsx";
+import { AuthProvider } from "./Components/Auth/AuthContext.jsx";
+import "./index.css";
+import { QueryClient, QueryClientProvider } from "react-query";
+import { createBrowserRouter, RouterProvider ,Navigate} from "react-router-dom";
+
 const queryClient = new QueryClient();
 const router = createBrowserRouter([
-  {
-    element: <Login/>,
-    path: '/',
-  },
-  ,{
-    element: <Layout/>,
+{
+  path: "/",
+    element: <AutoRedirect />,
     children: [
       {
-        path : '/dashboard',
-        element : <Dashboard/>
+        index: true,
+        element: <Login />,
       },
       {
-        path : '/categories',
-        element : <Categories/>
-      }
-    ]
+        element: <SignUp />,
+        path: "signup",
+      },
+      ,
+      {
+        path: "admin",
+        element: (
+          <ProtectedRoute allowedRoles={['admin']}>
+            <Layout />
+          </ProtectedRoute>
+        ),
+        children: [
+          {
+            path: "dashboard",
+            element: <Dashboard />,
+          },
+          {
+            path: "categories",
+            element: <Categories />,
+          },
+          {
+            path: "authors",
+            element: <Authors />,
+          },
+          {
+            path: "books",
+            element: <Books />,
+          },
+        ],
+      },
+      {
+        path: "/student",
+        element: (
+          <ProtectedRoute allowedRoles={['student']}>
+            <StudentLayout />
+          </ProtectedRoute>
+        ),
+        children: [
+          {
+            path: "dashboard",
+            element: <Categories />,
+          },
+        ],
+      },
+      
+      {
+        element: <Unauthorized />,
+        path: "/unauthorized",
+      },
+      {
+        path: "*",
+        element: <Navigate to="/" replace />,
+      },
 
-  }
+    ]
+}
 ]);
 
-ReactDOM.createRoot(document.getElementById('root')).render(
+ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
+    <AuthProvider>
+      <QueryClientProvider client={queryClient}>
 
-
-<QueryClientProvider client={queryClient}>
-
-  <RouterProvider router={router}/>
-  
+        <RouterProvider router={router} />
       </QueryClientProvider>
+    </AuthProvider>
+  </React.StrictMode>
+);
 
-
-  </React.StrictMode>,
-)

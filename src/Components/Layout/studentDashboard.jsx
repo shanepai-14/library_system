@@ -16,21 +16,10 @@ import Link from '@mui/material/Link';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { useNavigate } from 'react-router-dom';
-import { mainListItems, secondaryListItems } from './listItems';
-
+import { mainListItems, } from './studentListItems';
+import Copyright from './Copyright';
 import { Outlet } from "react-router-dom"
-function Copyright(props) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
+
 
 const drawerWidth = 240;
 
@@ -152,7 +141,7 @@ export default function Dashboard() {
           <List component="nav">
             {mainListItems}
             <Divider sx={{ my: 1 }} />
-            {secondaryListItems}
+
           </List>
         </Drawer>
         <Box
