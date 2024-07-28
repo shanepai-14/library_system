@@ -1,17 +1,15 @@
 import React, {useState , useEffect} from 'react';
-import AuthorTable from '../../Tables/DynamicTable';
+import DataTable from '../../Tables/DynamicTable';
 import  api from '../../../Utils/interceptor';
-import { getAuthors, deleteAuthors,updateAuthors ,booksAuthor } from '../../../Utils/endpoint';
+import { updateBookLoans, deleteBookLoans , getBooksLoans } from '../../../Utils/endpoint';
 import EditModal from '../../Modals/EditModal';
-import CreateAuthorModal from '../../Modals/CreateModal';
-import ViewModal from '../../Modals/ViewModal';
+import CreateModal from '../../Modals/CreateModal';
 import Swal from 'sweetalert2';
-import { tableHeader } from '../../../Utils/helper';
+import dayjs from 'dayjs';
 
-
-const Authors = () => {
+const BookLoans = () => {
     const [page, setPage] = useState(1);
-    const [authors, setAuthors] = useState([]);
+    const [books, setBooks] = useState([]);
     const [row , setRow] = useState(5);
     const [total, setTotal] = useState(0);
     const [search, setSearch] = useState('');
@@ -19,15 +17,14 @@ const Authors = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedRow, setSelectedRow] = useState(null);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-    const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-    const [viewData, setViewData] = useState({ id : 0});
     
 
+
     useEffect(() => {
-        fetchAuthors();
+        fetchTableData();
     }, [page, row, search]);
 
-    const fetchAuthors = () => {
+    const fetchTableData = () => {
         setLoading(true);
 
       const params = {
@@ -36,9 +33,43 @@ const Authors = () => {
         search: search,
       };
 
-      api.get(getAuthors(), { params }).then((res) => {
-  
-        setAuthors(res.data);
+      api.get(getBooksLoans(), { params }).then((res) => {
+
+        const transformedData = res.data.data.map(item => {
+            let transformedItem = {
+                ...item,
+                book: item.book ? item.book.title : '',
+                user: item.user ? `${item.user.first_name} ${item.user.last_name}` : '',
+                isbn: item.book ? item.book.isbn : '',
+            };
+        
+            // Calculate status based on due_date and loan_date
+            const currentDate = dayjs();
+            const dueDate = dayjs(item.due_date);
+            const loanDate = dayjs(item.loan_date);
+        
+            if (item.return_date) {
+                transformedItem.status = 'Returned';
+            } else if (currentDate.isAfter(dueDate)) {
+                transformedItem.status = 'Overdue';
+            } else if (currentDate.isAfter(loanDate) || currentDate.isSame(loanDate)) {
+                if (currentDate.isBefore(dueDate) || currentDate.isSame(dueDate)) {
+                    transformedItem.status = 'On Loan';
+                } else {
+                    transformedItem.status = 'Overdue';
+                }
+            } else if (currentDate.isBefore(loanDate)) {
+                transformedItem.status = 'Scheduled';
+            } else {
+                transformedItem.status = 'Unknown';
+            }
+        
+            return transformedItem;
+        });
+
+         setBooks(transformedData);
+        console.log(res);
+        
         setTotal(res.data.total);
         setLoading(false);
       });
@@ -63,28 +94,30 @@ const Authors = () => {
         setIsModalOpen(true);
       };
 
-      const handleCreate = (newAuthorData) => {
+      const handleCreate = (newData) => {
         setLoading(true);
-        
-        api.post(getAuthors(), newAuthorData)
-          .then((res) => {
+        console.log(newData, getBooksLoans)
 
+ 
+        api.post(getBooksLoans(), newData)
+          .then((res) => {
+            console.log('Issue book created:', res.data);
             
             Swal.fire({
               title: 'Success!',
-              text: 'New Author has been created.',
+              text: 'New Issue Book has been created.',
               icon: 'success',
               confirmButtonText: 'OK'
             });
             
-            fetchAuthors(); // Refresh the list
+            fetchTableData(); // Refresh the list
           })
           .catch((error) => {
-            console.error('Error creating Author :', error);
+            console.error('Error creating Book Issue :', error);
             
             Swal.fire({
               title: 'Error!',
-              text: 'Failed to create Author . Please try again.',
+              text: 'Failed to create Book Issue . Please try again.',
               icon: 'error',
               confirmButtonText: 'OK'
             });
@@ -96,29 +129,29 @@ const Authors = () => {
 
       const handleSave = (editedData) => {
         setLoading(true);
-        
-        api.put(updateAuthors(editedData.id), editedData)
+      
+        api.put(updateBookLoans(editedData.id), editedData,)
           .then((res) => {
-            console.log('Author  updated:', res.data);
+            console.log('Book Issue  updated:', res.data);
             
             // Show success message (you can use a toast notification or SweetAlert here)
             Swal.fire({
               title: 'Success!',
-              text: 'Author  has been updated.',
+              text: 'Book  has been updated.',
               icon: 'success',
               confirmButtonText: 'OK'
             });
             
             // Refresh the categories list
-            fetchAuthors();
+            fetchTableData();
           })
           .catch((error) => {
-            console.error('Error updating Author :', error);
+            console.error('Error updating Book Issue :', error);
             
             // Show error message
             Swal.fire({
               title: 'Error!',
-              text: 'Failed to update Author . Please try again.',
+              text: 'Failed to update Book Issue . Please try again.',
               icon: 'error',
               confirmButtonText: 'OK'
             });
@@ -139,43 +172,42 @@ const Authors = () => {
           confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
           if (result.isConfirmed) {
-            api.delete(deleteAuthors(row.id)).then((res) => {
-              fetchAuthors();
+            api.delete(deleteBookLoans(row.id)).then((res) => {
+              fetchTableData();
               Swal.fire(
                 'Deleted!',
-                'An Author has been deleted.',
+                'Book Issue has been deleted.',
                 'success'
               );
             }).catch((error) => {
               Swal.fire(
                 'Error!',
-                'There was a problem deleting the an Author.',
+                'There was a problem deleting the an Book Issue.',
                 'error'
               );
             });
           }
         });
       };
-      const viewOnClick = (row) => {
 
-        setViewData(row);
-        setIsViewModalOpen(true);
-      }
-      const createableColumns = ["name"];
-      const editableColumns = ["name"];  
-    const authorHeader = [
-        { headerName: "Name", align: "left", accessor: "name" },
-        { headerName: "Created date", align: "left", accessor: "created_at" },
-        { headerName: "Updated date", align: "left", accessor: "updated_at" },
-      ];
-
+      const createableColumns = ["user_id","book_id","due_date"];
+      const editableColumns = ["user_id","book_id","due_date"];  
+      const tableHeader = [
+        { headerName: "Borrower", align: "left", accessor: "user" },
+        { headerName: "Book Name", align: "left", accessor: "book" },
+        { headerName: "ISBN", align: "left", accessor: "isbn" },
+        { headerName: "Issue Date", align: "left", accessor: "loan_date" },
+        { headerName: "Due date", align: "left", accessor: "due_date" },
+        { headerName: "Returned date", align: "left", accessor: "actual_return_date" },
+        { headerName: "Status", align: "left", accessor: "status" },
+      ]; 
     return (
         <>
-         <AuthorTable
-           createButtonTitle = "ADD AUTHOR"
-           columnsData={authorHeader}
-           data={authors.data ?? []}
-           viewOnClick={viewOnClick}
+         <DataTable
+           createButtonTitle = "ISSUE BOOK"
+           columnsData={tableHeader}
+           data={books ?? []}
+        //    viewOnClick={viewUser}
            showDeleteBtn={true}
            showStatus={false}
            showEditBtn={true}
@@ -192,13 +224,13 @@ const Authors = () => {
              marginTop={"2px"}
              setDeleteOnClick={(row) => {handleDelete(row)}}
              setEditOnClick={(row) => {handleEdit(row)}}
-             handleOpenCreateModal={handleOpenCreateModal}
+           handleOpenCreateModal={handleOpenCreateModal}
          
          
          />
       {selectedRow && (
             <EditModal
-            title="Edit Author"
+              title="Issue Book"
               editableColumns={editableColumns}
                 open={isModalOpen}
                 handleClose={handleClose}
@@ -208,24 +240,15 @@ const Authors = () => {
             )}
 
       
-      <CreateAuthorModal
-        title="Create a new author"
+      <CreateModal
+        title="Issue Book"
         open={isCreateModalOpen}
         handleClose={handleCloseCreateModal}
         handleCreate={handleCreate}
         createableColumns={createableColumns}
       />
-
-        <ViewModal
-        title="Author"
-        open={isViewModalOpen}
-        handleClose={() => setIsViewModalOpen(false)}
-        viewData={viewData}
-        url={booksAuthor}
-        tableHeader={tableHeader}
-      />
         </>
     )
 }
 
-export default Authors
+export default  BookLoans

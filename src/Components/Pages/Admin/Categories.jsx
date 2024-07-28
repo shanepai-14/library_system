@@ -6,6 +6,7 @@ import EditModal from '../../Modals/EditModal';
 import CreateCategoryModal from '../../Modals/CreateModal';
 import Swal from 'sweetalert2';
 import ViewModal from '../../Modals/ViewModal';
+import { tableHeader } from '../../../Utils/helper';
 
 const Categories = () => {
     const [page, setPage] = useState(1);
@@ -218,6 +219,7 @@ const Categories = () => {
         handleClose={() => setIsViewModalOpen(false)}
         viewData={viewData}
         url={booksCategory}
+        tableHeader={tableHeader}
       />
 
         </>

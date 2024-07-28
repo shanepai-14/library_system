@@ -25,5 +25,19 @@ export const deleteBooks= (id) => `/books/${id}`
 
 export const updateBooks= (id) => `/books/${id}`
 
+export const showBook= (id) => `/books/${id}`
+
 export const booksCategory = (id) => `/books/category/${id}`
 export const booksAuthor = (id) => `/books/author/${id}`
+
+export const getBooksLoans= () => `/book-loans`
+
+export const updateBookLoans = (id) => `/book-loans/${id}`
+
+export const deleteBookLoans = (id) => `/book-loans/${id}`
+
+export const getUsers= () => '/users'
+
+export const showUser= (id) => `/user/${id}`
+
+export const activeBookLoans =  (id) => `/books/${id}/active-loans`

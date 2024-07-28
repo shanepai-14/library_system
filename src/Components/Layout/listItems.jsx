@@ -54,7 +54,7 @@ export const mainListItems = (
       <ListItemIcon>
         <LayersIcon />
       </ListItemIcon>
-       <Link to="/issue-books" style={linkStyle}>
+       <Link to="/admin/bookloans" style={linkStyle}>
       <ListItemText primary="Issue Books" />
       </Link>
     </ListItemButton>

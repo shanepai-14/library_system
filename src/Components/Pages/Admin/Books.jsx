@@ -1,11 +1,12 @@
 import React, {useState , useEffect} from 'react';
 import DataTable from '../../Tables/DynamicTable';
 import  api from '../../../Utils/interceptor';
-import { getBooks, deleteBooks,updateBooks } from '../../../Utils/endpoint';
+import { getBooks, deleteBooks,updateBooks ,activeBookLoans} from '../../../Utils/endpoint';
 import EditModal from '../../Modals/EditModal';
 import CreateModal from '../../Modals/CreateModal';
 import { tableHeader } from '../../../Utils/helper';
 import Swal from 'sweetalert2';
+import ViewModal from '../../Modals/ViewModal';
 
 
 const Books = () => {
@@ -18,6 +19,8 @@ const Books = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [selectedRow, setSelectedRow] = useState(null);
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
+    const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+    const [viewData, setViewData] = useState({ id : 0});
     
 
 
@@ -45,8 +48,6 @@ const Books = () => {
         });
 
          setBooks(transformedData);
-        console.log(transformedData);
-        
         setTotal(res.data.total);
         setLoading(false);
       });
@@ -73,7 +74,7 @@ const Books = () => {
 
       const handleCreate = (newData) => {
         setLoading(true);
-        console.log(newData)
+   
         const formData = new FormData();
 
         Object.keys(newData).forEach(key => {
@@ -92,7 +93,7 @@ const Books = () => {
             'Content-Type': 'multipart/form-data'
           }})
           .then((res) => {
-            console.log('Category created:', res.data);
+
             
             Swal.fire({
               title: 'Success!',
@@ -121,7 +122,7 @@ const Books = () => {
       const handleSave = (editedData) => {
         setLoading(true);
         const formData = new FormData();
-         console.log(editedData);
+
         // Append all other fields
         Object.keys(editedData).forEach(key => {
           if (key !== 'image') {
@@ -143,14 +144,14 @@ const Books = () => {
           }
 
           formData.append('_method', 'PUT');
-          console.log(formData);
+
         api.post(updateBooks(editedData.id), formData, {
             headers: {
                 'Content-Type': 'multipart/form-data'
               }
         })
           .then((res) => {
-            console.log('Author  updated:', res.data);
+  
             
             // Show success message (you can use a toast notification or SweetAlert here)
             Swal.fire({
@@ -208,16 +209,29 @@ const Books = () => {
         });
       };
 
+      const viewOnClick = (row) => {
+
+        setViewData(row);
+        setIsViewModalOpen(true);
+  
+      }
+
       const createableColumns = ["title","book_price","total_copies","isbn","publication_year","author_id","category_id","image"];
       const editableColumns = ["title","book_price","total_copies","isbn","publication_year","author_id","category_id","image",];  
-
+      const BookLoanHeader = [
+        { headerName: "Borrower", align: "left", accessor: "user" },
+        { headerName: "ISBN", align: "left", accessor: "isbn" },
+        { headerName: "Issue Date", align: "left", accessor: "loan_date" },
+        { headerName: "Due date", align: "left", accessor: "due_date" },
+        { headerName: "Status", align: "left", accessor: "status" },
+      ]; 
     return (
         <>
          <DataTable
            createButtonTitle = "ADD BOOK"
            columnsData={tableHeader}
            data={books ?? []}
-        //    viewOnClick={viewUser}
+           viewOnClick={viewOnClick}
            showDeleteBtn={true}
            showStatus={false}
            showEditBtn={true}
@@ -256,6 +270,15 @@ const Books = () => {
         handleClose={handleCloseCreateModal}
         handleCreate={handleCreate}
         createableColumns={createableColumns}
+      />
+
+          <ViewModal
+        title="Book"
+        open={isViewModalOpen}
+        handleClose={() => setIsViewModalOpen(false)}
+        viewData={viewData}
+        url={activeBookLoans}
+        tableHeader={BookLoanHeader}
       />
         </>
     )

@@ -11,11 +11,15 @@ import SignUp from "./Signup.jsx";
 import ProtectedRoute from "./Components/Auth/ProtectedRoute.jsx";
 import Unauthorized from "./Components/Pages/Unathorized.jsx";
 import AutoRedirect from "./Components/Auth/AutoRedirect.jsx";
+import BookLoans from "./Components/Pages/Admin/BookLoans.jsx";
+import Attendance from "./Components/Pages/Attendance/Attendance.jsx";
 import { AuthProvider } from "./Components/Auth/AuthContext.jsx";
 import "./index.css";
 import { QueryClient, QueryClientProvider } from "react-query";
 import { createBrowserRouter, RouterProvider ,Navigate} from "react-router-dom";
-
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import dayjs from 'dayjs';
 const queryClient = new QueryClient();
 const router = createBrowserRouter([
 {
@@ -55,6 +59,10 @@ const router = createBrowserRouter([
             path: "books",
             element: <Books />,
           },
+          {
+            path: "bookloans",
+            element: <BookLoans />,
+          },
         ],
       },
       {
@@ -82,17 +90,24 @@ const router = createBrowserRouter([
       },
 
     ]
+},
+{
+  element: <Attendance />,
+  path: "/attendance",
 }
+
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
   <React.StrictMode>
+     <LocalizationProvider dateAdapter={AdapterDayjs}>
     <AuthProvider>
       <QueryClientProvider client={queryClient}>
 
         <RouterProvider router={router} />
       </QueryClientProvider>
     </AuthProvider>
+    </LocalizationProvider>
   </React.StrictMode>
 );
 

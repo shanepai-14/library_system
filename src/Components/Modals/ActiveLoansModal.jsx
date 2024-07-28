@@ -2,8 +2,9 @@ import React, {useState ,useEffect} from 'react';
 import { Modal, Box, Typography, Button, TextField ,Grid,  Switch, FormControlLabel} from '@mui/material';
 import DataTable from '../Tables/DynamicTable'
 import api from '../../Utils/interceptor';
-import dayjs from 'dayjs';
-const ViewModal = ({ open, handleClose,  viewData , url ,title , tableHeader }) => {
+import { tableHeader } from '../../Utils/helper';
+
+const ActiveLoansModal = ({ open, handleClose,  viewData , url ,title  }) => {
 
     const [page, setPage] = useState(1);
     const [row , setRow] = useState(10);
@@ -14,10 +15,10 @@ const ViewModal = ({ open, handleClose,  viewData , url ,title , tableHeader }) 
 
   
     useEffect(() => {
-       if(viewData.id) fetchData(viewData.id);
+       if(viewData.id) fetchBooks(viewData.id);
     }, [page, row, search,viewData.id]);
 
-    const fetchData = (id) => {
+    const fetchBooks = (id) => {
         setLoading(true);
         const params = {
             page: page,
@@ -26,7 +27,7 @@ const ViewModal = ({ open, handleClose,  viewData , url ,title , tableHeader }) 
           };
     
           api.get(url(id), { params }).then((res) => {
-      
+            console.log(res);
 
             if(res.data.message === "No books found in this category"){
                 alert('No books found in this category')
@@ -36,48 +37,13 @@ const ViewModal = ({ open, handleClose,  viewData , url ,title , tableHeader }) 
                 return;
 
             } 
-
-            if(res.data.message === "No active loans found for this book."){
-              alert('No active loans found for this book.')
-              setBooks([]);
-              setTotal(0);
-              setLoading(false);
-              return;
-
-          } 
-          
-          const transformedData = res.data.data.map(item => {
-            let transformedItem = { ...item };
-            if (title === "wew") {
-                transformedItem.author = item.author ? item.author.name : '';
-                transformedItem.category = item.category ? item.category.name : '';
-            } else if (title === "Book") {
-                transformedItem.user = item.user ? `${item.user.first_name} ${item.user.last_name}` : '';
-                transformedItem.book = item.book ? item.book.title : '';
-                
-                // Calculate status based on due_date and loan_date
-                const currentDate = dayjs();
-                const dueDate = dayjs(item.due_date);
-                const loanDate = dayjs(item.loan_date);
-                
-                if (item.return_date) {
-                    transformedItem.status = 'Returned';
-                } else if (currentDate.isAfter(dueDate)) {
-                    transformedItem.status = 'Overdue';
-                } else if (currentDate.isAfter(loanDate) || currentDate.isSame(loanDate)) {
-                    if (currentDate.isBefore(dueDate) || currentDate.isSame(dueDate)) {
-                        transformedItem.status = 'On Loan';
-                    } else {
-                        transformedItem.status = 'Overdue';
-                    }
-                } else if (currentDate.isBefore(loanDate)) {
-                    transformedItem.status = 'Scheduled';
-                } else {
-                    transformedItem.status = 'Unknown';
-                }
-            }
-            return transformedItem;
-        });
+            const transformedData = res.data.data.map(item => {
+                return {
+                    ...item,
+                    author: item.author ? item.author.name : '',
+                    category: item.category? item.category.name : '',
+                };
+            });
             setBooks(transformedData);
             setTotal(res.data.total);
             setLoading(false);
@@ -106,7 +72,7 @@ const ViewModal = ({ open, handleClose,  viewData , url ,title , tableHeader }) 
           p: 4,
         }}>
           <Typography id="edit-modal-title" variant="h6" component="h2">
-            {  `${title}  ${title == "Book" ? viewData.title : viewData.name}`  }
+            {  `${title}  ${viewData.name}`  }
           </Typography>
           <DataTable
           
@@ -141,6 +107,6 @@ const ViewModal = ({ open, handleClose,  viewData , url ,title , tableHeader }) 
     );
   };
 
-  export default ViewModal;
+  export default ActiveLoansModal;
 
  

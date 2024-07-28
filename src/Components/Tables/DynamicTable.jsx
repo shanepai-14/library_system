@@ -20,6 +20,10 @@ import Button from "@mui/material/Button";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import CircleIcon from "@mui/icons-material/Circle";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import { Chip } from '@mui/material';
+import QRCode from "react-qr-code";
+import Barcode from "react-barcode";
+import { useZxing } from "react-zxing";
 import {
   alpha,
   CircularProgress,
@@ -69,27 +73,56 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-function getWholeAndDecimal(value) {
-  const guardNaN = (value) => (isFinite(value) ? value : 0);
-  const [whole, decimal] = String(value).split(".");
-  return [Number(guardNaN(whole)), "." + decimal];
-}
-function getHoursMinute(totalMinutes) {
-  const guardNaN = (value) => (isFinite(value) ? value : 0);
 
-  var minDuration = totalMinutes;
-  var totalHours = minDuration / 60;
 
-  const [, decimal] = String(
-    parseFloat((getWholeAndDecimal(totalHours)[1] / 100) * 60).toFixed(2)
-  ).split(".");
-  var finalTotalHours = getWholeAndDecimal(totalHours)[0];
-  var finalTotalMinutes = decimal;
-  return [
-    Number(guardNaN(finalTotalHours)),
-    Number(guardNaN(finalTotalMinutes)),
-  ];
-}
+
+const renderCellContent = (accessor, value) => {
+  switch (accessor) {
+    case "isbn":
+      return value ? (
+        <Barcode value={value} width={1} height={30} />
+      ) : (
+        "No ISBN"
+      );
+    case  "actual_return_date" :
+      return value ? value : "Not returned" 
+    case "created_at":
+    case "updated_at":
+    case "due_date":
+    case "loan_date":
+      return formatDate(value);
+    case "status":
+      return (
+        <Chip 
+          label={value} 
+          color={getStatusColor(value)}
+          size="small"
+        />
+      );
+    default:
+      return value;
+  }
+};
+
+const getStatusColor = (status) => {
+  switch (status.toLowerCase()) {
+    case 'returned':
+      return 'success';
+    case 'overdue':
+      return 'error';
+    case 'on loan':
+      return 'primary';
+    case 'scheduled':
+      return 'warning';
+    case 'inactive':
+      return 'error'; 
+    case 'active':
+      return 'success';   
+    default:
+      return 'default';
+  }
+};
+
 
 const TableToolbar = (props) => {
   const { numSelected } = props;
@@ -276,8 +309,7 @@ export const DataPage = (props) => {
                     scope="row"
                     onClick={() => props.viewOnClick(row)}
                   >
-                  
-                      {access.accessor == 'created_at' || access.accessor ==  'updated_at' ? formatDate(getCellValue) : getCellValue}
+                    {renderCellContent(access.accessor, getCellValue)}
                   </TableCell>
                 );
               })}
