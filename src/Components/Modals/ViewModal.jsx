@@ -1,5 +1,5 @@
 import React, {useState ,useEffect} from 'react';
-import { Modal, Box, Typography, Button, TextField ,Grid,  Switch, FormControlLabel} from '@mui/material';
+import { Modal, Box, Typography, Button ,Grid } from '@mui/material';
 import DataTable from '../Tables/DynamicTable'
 import api from '../../Utils/interceptor';
 import dayjs from 'dayjs';
@@ -27,7 +27,6 @@ const ViewModal = ({ open, handleClose,  viewData , url ,title , tableHeader }) 
     
           api.get(url(id), { params }).then((res) => {
       
-
             if(res.data.message === "No books found in this category"){
                 alert('No books found in this category')
                 setBooks([]);
@@ -48,7 +47,7 @@ const ViewModal = ({ open, handleClose,  viewData , url ,title , tableHeader }) 
           
           const transformedData = res.data.data.map(item => {
             let transformedItem = { ...item };
-            if (title === "wew") {
+            if (title === "Author") {
                 transformedItem.author = item.author ? item.author.name : '';
                 transformedItem.category = item.category ? item.category.name : '';
             } else if (title === "Book") {
@@ -60,7 +59,7 @@ const ViewModal = ({ open, handleClose,  viewData , url ,title , tableHeader }) 
                 const dueDate = dayjs(item.due_date);
                 const loanDate = dayjs(item.loan_date);
                 
-                if (item.return_date) {
+                if (item.actual_return_date) {
                     transformedItem.status = 'Returned';
                 } else if (currentDate.isAfter(dueDate)) {
                     transformedItem.status = 'Overdue';
