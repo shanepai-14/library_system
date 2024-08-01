@@ -43,3 +43,7 @@ export const showUser= (id) => `/user/${id}`
 export const activeBookLoans =  (id) => `/books/${id}/active-loans`
 
 export const checkBookLoanReturn = (id) => `/book-loans/${id}/return`
+
+export const checkStudent = () =>`/check-student`;
+
+export const postAttendance = () => `/attendance/check`;

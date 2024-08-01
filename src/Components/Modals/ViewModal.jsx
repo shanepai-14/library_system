@@ -53,7 +53,7 @@ const ViewModal = ({ open, handleClose,  viewData , url ,title , tableHeader }) 
             } else if (title === "Book") {
                 transformedItem.user = item.user ? `${item.user.first_name} ${item.user.last_name}` : '';
                 transformedItem.book = item.book ? item.book.title : '';
-                
+                transformedItem.isbn = item.book ? item.book.isbn: '';
                 // Calculate status based on due_date and loan_date
                 const currentDate = dayjs();
                 const dueDate = dayjs(item.due_date);
