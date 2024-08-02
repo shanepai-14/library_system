@@ -21,9 +21,7 @@ import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import CircleIcon from "@mui/icons-material/Circle";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
 import { Chip } from '@mui/material';
-import QRCode from "react-qr-code";
 import Barcode from "react-barcode";
-import { useZxing } from "react-zxing";
 import {
   alpha,
   CircularProgress,
@@ -37,6 +35,7 @@ import DeleteIcon from "@mui/icons-material/Delete";
 import styled from "@emotion/styled";
 import SearchIcon from "@mui/icons-material/Search";
 import DownloadIcon from "@mui/icons-material/Download";
+import dayjs from "dayjs";
 import { formatDate } from "../../Utils/helper";
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -84,6 +83,9 @@ const renderCellContent = (accessor, value) => {
       ) : (
         "No ISBN"
       );
+    case "check_in" :  
+    case "check_out" :
+      return value == null ? "" : dayjs(value).format('h:mm A');
     case  "actual_return_date" :
       return value ? value : "Not returned" 
     case "created_at":

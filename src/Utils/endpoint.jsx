@@ -47,3 +47,5 @@ export const checkBookLoanReturn = (id) => `/book-loans/${id}/return`
 export const checkStudent = () =>`/check-student`;
 
 export const postAttendance = () => `/attendance/check`;
+
+export const getAttendance = () => `/attendances`;

@@ -8,28 +8,32 @@ import {
 } from "@mui/material";
 import { postAttendance, checkStudent } from "../../../Utils/endpoint";
 import api from "../../../Utils/interceptor";
-import { useZxing } from "react-zxing";
 import debounce from "lodash/debounce";
 import Swal from "sweetalert2";
 import ReasonCards from "./ReasonCards";
-
+import Scanner from "./Scanner";
+import LocalLibraryIcon from "@mui/icons-material/LocalLibrary";
 function LinearProgressWithLabel(props) {
   return (
-    <Box sx={{ display: 'flex', alignItems: 'center' }}>
-      <Box sx={{ width: '100%', mr: 1 }}>
-        <LinearProgress variant="determinate" {...props} />
+    <Box sx={{ display: "flex", alignItems: "center" }}>
+      <Box sx={{ width: "100%", mr: 1 }}>
+        <LinearProgress
+          sx={{
+            "--LinearProgress-progressThickness": "24px",
+            "--LinearProgress-thickness": "24px",
+          }}
+          variant="determinate"
+          {...props}
+        />
       </Box>
       <Box sx={{ minWidth: 35 }}>
         <Typography variant="body2" color="text.secondary">{`${Math.round(
-          props.value,
+          props.value
         )}%`}</Typography>
       </Box>
     </Box>
   );
 }
-
-
-
 
 const AttendanceSystem = () => {
   const [scanResult, setScanResult] = useState("");
@@ -43,15 +47,6 @@ const AttendanceSystem = () => {
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
 
-  const { ref } = useZxing({
-    onDecodeResult(result) {
-      const scannedUserID = result.getText();
-      setIsScanning(false);
-      fetchStudentData(scannedUserID);
-    },
-    paused: !isScanning,
-  });
-
   useEffect(() => {
     const timer = setInterval(() => {
       setCurrentTime(new Date().toLocaleTimeString());
@@ -62,9 +57,39 @@ const AttendanceSystem = () => {
 
   useEffect(() => {
     if (selectedReasons != "") {
-      submitAttendance(studentID,selectedReasons);
+      submitAttendance(studentID, selectedReasons);
     }
   }, [selectedReasons]);
+
+  // const fetchStudentData = (id) => {
+  //   setLoading(true);
+  //   const data = {
+  //     id_number: id,
+  //   };
+
+  //   api
+  //     .post(checkStudent(), data)
+  //     .then((res) => {
+  //       console.log(res.data);
+  //       if (res.data.found) {
+  //         setStudentID(res.data.student.id);
+  //         setShowReasons(true);
+  //         setStudentName(res.data.student.first_name);
+  //       }
+  //     })
+  //     .catch((error) => {
+  //       Swal.fire({
+  //         icon: "error",
+  //         title: "Student Not Found",
+  //         text: "No student found with the provided ID number.",
+  //         confirmButtonText: "OK",
+  //       });
+  //     })
+  //     .finally(() => {
+  //       setIsScanning(true);
+  //       setLoading(false);
+  //     });
+  // };
 
   const fetchStudentData = (id) => {
     setLoading(true);
@@ -77,16 +102,41 @@ const AttendanceSystem = () => {
       .then((res) => {
         console.log(res.data);
         if (res.data.found) {
-          setStudentID(res.data.student.id);
-          setShowReasons(true);
-          setStudentName(res.data.student.first_name);
+          if (res.data.message.includes("Check-out successful")) {
+            const Time = new Date(
+              res.data.attendance.check_out
+            ).toLocaleTimeString();
+            Swal.fire({
+              title: res.data.message,
+              html: `<h1>${Time}</strong>.</h1>`,
+              icon: "success",
+            });
+          } else if (res.data.message.includes("already checked in and out")) {
+            Swal.fire({
+              title: "You have already checked in and out for today",
+              icon: "error",
+            });
+          }
+
+          if (res.data.message.includes("No check-in or check-out for today")) {
+            setStudentID(res.data.student.id);
+            setStudentName(res.data.student.first_name);
+            setShowReasons(true);
+          }
+        } else {
+          Swal.fire({
+            icon: "error",
+            title: "Student Not Found",
+            text: res.data.message,
+            confirmButtonText: "OK",
+          });
         }
       })
       .catch((error) => {
         Swal.fire({
           icon: "error",
-          title: "Student Not Found",
-          text: "No student found with the provided ID number.",
+          title: "Error",
+          text: "An error occurred while fetching student data.",
           confirmButtonText: "OK",
         });
       })
@@ -95,13 +145,12 @@ const AttendanceSystem = () => {
         setLoading(false);
       });
   };
-  const submitAttendance = (id,reason) => {
-
-    setProgress(20); 
+  const submitAttendance = (id, reason) => {
+    setProgress(20);
     const data = {
       user_id: id,
-      notes : reason
-    }; 
+      notes: reason,
+    };
     api
       .post(postAttendance(), data, {
         onUploadProgress: (progressEvent) => {
@@ -114,55 +163,28 @@ const AttendanceSystem = () => {
       .then((res) => {
         setProgress(100);
         const message = res.data.message;
-        const Time = new Date(res.data.attendance.check_in).toLocaleTimeString();
+        const Time = new Date(
+          res.data.attendance.check_in
+        ).toLocaleTimeString();
         Swal.fire({
           title: message,
           html: `<h1>${Time}</strong>.</h1>`,
-          icon: 'success',
+          icon: "success",
         });
-        setIsScanning(true);
-        setStudentName('');
-        setManualUserID('');
-        setStudentID('');
-        setShowReasons(false);
-        setScanResult('');
-        setSelectedReasons('');
-        
-        
-       
-        
-        setTimeout(() => {
-          setProgress(0);
-        }, 1000);
+
+        resetStates();
       })
 
-     
       .catch((err) => {
         Swal.fire({
           title: "You have already checked in and out for today",
-          icon: 'error',
+          icon: "error",
         });
 
-        setIsScanning(true);
-        setProgress(0); 
-        setStudentName('');
-        setManualUserID('');
-        setStudentID('');
-        setShowReasons(false);
-        setScanResult('');
-        setSelectedReasons('');
-      
-      }).finally(() => {
-        setIsScanning(true);
-        setProgress(0);
-        setStudentName('');
-        setManualUserID('');
-        setStudentID('');
-        setShowReasons(false);
-        setScanResult('');
-        setSelectedReasons('');
-        
-
+        resetStates();
+      })
+      .finally(() => {
+        resetStates();
       });
   };
 
@@ -191,78 +213,153 @@ const AttendanceSystem = () => {
     []
   );
 
-  const reasons = ["Study", "Borrow Book", "Return Book","Use Computer", "Research", "Other"];
+  const handleScan = (scannedUserID) => {
+    setIsScanning(false);
+    fetchStudentData(scannedUserID);
+  };
+
+  const resetStates = () => {
+    setTimeout(() => {
+      setIsScanning(true);
+      setProgress(0);
+      setStudentName("");
+      setManualUserID("");
+      setStudentID("");
+      setShowReasons(false);
+      setScanResult("");
+      setSelectedReasons("");
+      setScannerKey((prevKey) => prevKey + 1);
+    }, 100);
+  };
+
+  const reasons = [
+    "Study",
+    "Borrow Book",
+    "Return Book",
+    "Use Computer",
+    "Research",
+    "Other",
+  ];
 
   return (
-    <Container maxWidth="sm">
-      <Box
+    <Container
+      maxWidth="100%"
+      sx={{
+        height: "100vh",
+        display: "flex",
+        justifyContent: "center",
+        alignItems: "center",
+        backgroundImage: "linear-gradient(180deg, #CEE5FD, #FFF)",
+        margin: 0,
+      }}
+    >
+      <Container
+        maxWidth="md"
         sx={{
           display: "flex",
-          flexDirection: "column",
-          alignItems: "center",
           justifyContent: "center",
-          minHeight: "100vh",
+          alignItems: "center",
+          flexDirection: "column",
         }}
       >
-        <Typography variant="h4" gutterBottom>
-          Library Attendance System
+        <Typography
+          variant="h3"
+          component="h3"
+          mb={4}
+          mt={2}
+          color="text.primary"
+          gutterBottom
+        >
+          <LocalLibraryIcon fontSize="inherit"/> Library Attendance System
         </Typography>
 
-      
-
-        {progress !== 0 ? (
-        <Box width={500} sx={{ marginTop: 20 }}>
-          <Typography variant="h6" sx={{textAlign:"center"}} gutterBottom>
-          Uploading Attendance
-        </Typography>
-          <LinearProgressWithLabel value={progress} />
-        </Box>
-      ) : (
-        !showReasons ? (
-          <Box
-            sx={{
-              width: "100%",
-              maxWidth: 600,
-              position: "relative",
-              boxShadow: 1,
-            }}
-          >
-            <TextField
-              label="Enter User ID manually Or Scan QR Code"
-              variant="outlined"
-              value={manualUserID}
-              onChange={handleInputChange}
-              fullWidth
-              margin="normal"
-              sx={{ marginTop: 0 }}
-            />
-            <video
-              ref={ref}
-              style={{ width: "100%", height: "100%", objectFit: "cover" }}
-            />
-            {loading && <LinearProgress color="inherit" />}
-          </Box>
-        ) : (
-          <Box>
-            <Typography
-              sx={{ textAlign: 'center', marginBottom: 5, marginTop: 5 }}
-              variant="h5"
-              gutterBottom
+        <Box
+          sx={{
+            padding: 5,
+            display: "flex",
+            flexDirection: "column",
+            alignItems: "center",
+            justifyContent: "center",
+            boxShadow: 3,
+            borderColor: "primary.light",
+            borderRadius: "10px",
+            border: "1px solid rgb(156, 204, 252)",
+            background: "white;",
+          }}
+        >
+          {progress !== 0 ? (
+            <Box width={500} sx={{ marginTop: 20 }}>
+              <Typography
+                variant="h6"
+                sx={{ textAlign: "center" }}
+                gutterBottom
+              >
+                Uploading Attendance
+              </Typography>
+              <LinearProgressWithLabel value={progress} />
+            </Box>
+          ) : !showReasons ? (
+            <Box
+              sx={{
+                width: "100%",
+                maxWidth: 500,
+                position: "relative",
+              }}
             >
-              Hello {studentName}! Select reason for visit:
-            </Typography>
-            <ReasonCards
-              reasons={reasons}
-              handleReasonClick={handleReasonClick}
-            />
-          </Box>
-        )
-      )}
+              <TextField
+                label="Enter User ID manually Or Scan QR Code"
+                variant="outlined"
+                value={manualUserID}
+                onChange={handleInputChange}
+                fullWidth
+                margin="normal"
+                sx={{ marginTop: 0, bgcolor: "white" }}
+              />
+            </Box>
+          ) : (
+            <Box>
+              <Typography
+                sx={{ textAlign: "center",color: 'primary.main',marginBottom: 2}}
+                variant="h4"
+              >
+                Hello {studentName} !! 
+              </Typography>
+              <Typography
+                sx={{ textAlign: "center", marginBottom: 5 }}
+                variant="h4"
+                gutterBottom
+              >
+               Select reason for visit
+              </Typography>
+              <ReasonCards
+                reasons={reasons}
+                handleReasonClick={handleReasonClick}
+              />
+            </Box>
+          )}
 
-        <Typography variant="h4" sx={{ position: "fixed", bottom: 20 }}>
+          {!showReasons && (
+            <Box width="500px">
+              <Scanner onScan={handleScan} isScanning={isScanning} />
+              {loading && <LinearProgress thickness={20} color="primary" />}
+            </Box>
+          )}
+        </Box>
+
+        <Typography
+          variant="h1"
+          sx={{
+            mt: 5,
+            fontFamily: "'Orbitron', sans-serif",
+            // You might want to adjust these properties for better appearance
+            fontSize: "5rem",
+            letterSpacing: "0.1em",
+            fontWeight: "normal",
+          }}
+        >
           {currentTime}
         </Typography>
-      </Box>
+      </Container>
     </Container>
   );
 };
