@@ -110,11 +110,13 @@ const AttendanceSystem = () => {
               title: res.data.message,
               html: `<h1>${Time}</strong>.</h1>`,
               icon: "success",
+              timer: 2000
             });
           } else if (res.data.message.includes("already checked in and out")) {
             Swal.fire({
               title: "You have already checked in and out for today",
               icon: "error",
+              timer: 2000
             });
           }
 
@@ -129,6 +131,7 @@ const AttendanceSystem = () => {
             title: "Student Not Found",
             text: res.data.message,
             confirmButtonText: "OK",
+            timer: 2000
           });
         }
       })
@@ -138,6 +141,7 @@ const AttendanceSystem = () => {
           title: "Error",
           text: "An error occurred while fetching student data.",
           confirmButtonText: "OK",
+          timer: 2000
         });
       })
       .finally(() => {
@@ -170,6 +174,7 @@ const AttendanceSystem = () => {
           title: message,
           html: `<h1>${Time}</strong>.</h1>`,
           icon: "success",
+          timer: 2000
         });
 
         resetStates();
@@ -179,6 +184,7 @@ const AttendanceSystem = () => {
         Swal.fire({
           title: "You have already checked in and out for today",
           icon: "error",
+          timer: 2000
         });
 
         resetStates();

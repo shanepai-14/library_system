@@ -26,6 +26,7 @@ const ViewModal = ({ open, handleClose,  viewData , url ,title , tableHeader }) 
           };
     
           api.get(url(id), { params }).then((res) => {
+            console.log(res);
       
             if(res.data.message === "No books found in this category"){
                 alert('No books found in this category')
@@ -74,6 +75,9 @@ const ViewModal = ({ open, handleClose,  viewData , url ,title , tableHeader }) 
                 } else {
                     transformedItem.status = 'Unknown';
                 }
+            } else if(title === "Category") {
+              transformedItem.author = item.author ? item.author.name : '';
+              transformedItem.category = item.category ? item.category.name : '';
             }
             return transformedItem;
         });

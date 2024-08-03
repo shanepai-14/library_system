@@ -20,7 +20,7 @@ import Button from "@mui/material/Button";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import CircleIcon from "@mui/icons-material/Circle";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
-import { Chip } from '@mui/material';
+import { Chip, Typography } from '@mui/material';
 import Barcode from "react-barcode";
 import {
   alpha,
@@ -29,6 +29,7 @@ import {
   Grid,
   InputBase,
   Toolbar,
+  Avatar
 } from "@mui/material";
 import EditIcon from "@mui/icons-material/Edit";
 import DeleteIcon from "@mui/icons-material/Delete";
@@ -36,6 +37,7 @@ import styled from "@emotion/styled";
 import SearchIcon from "@mui/icons-material/Search";
 import DownloadIcon from "@mui/icons-material/Download";
 import dayjs from "dayjs";
+import QRCode from 'react-qr-code';
 import { formatDate } from "../../Utils/helper";
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
@@ -77,6 +79,20 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 const renderCellContent = (accessor, value) => {
   switch (accessor) {
+    case "student_name":
+      return <Typography>{value}</Typography>;
+    case "profile_picture":
+      return  <Avatar alt="Student" size="lg" src={"https://picsum.photos/id/237/200/300"} />;
+    case "student_id":   
+    case "id_number":
+      return value ? (
+        <>
+        <QRCode id={`qr-code-${value}`}  value={value} size={70} />
+        <Typography>{value}</Typography>
+        </>
+      ) : (
+        "No ID"
+      );
     case "isbn":
       return value ? (
         <Barcode value={value} width={1} height={30} />
@@ -268,9 +284,7 @@ export const DataPage = (props) => {
                   props.showVIewIcon ||
                   props.showEditBtn) && (
                   <TableCell style={{ fontWeight: "bold" }} align="center">
-                    {props.showStatus ? "Actief" : ""}
-                    {props.showVIewIcon ? "Actie" : ""}
-                    {props.showEditBtn ? "Action" : ""}
+                     Action
                   </TableCell>
                 )}
               </TableRow>

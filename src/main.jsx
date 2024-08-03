@@ -14,6 +14,7 @@ import AutoRedirect from "./Components/Auth/AutoRedirect.jsx";
 import BookLoans from "./Components/Pages/Admin/BookLoans.jsx";
 import Attendance from "./Components/Pages/Attendance/Attendance.jsx";
 import AttendanceList from "./Components/Pages/Admin/AttendancePage.jsx"
+import Students from "./Components/Pages/Admin/Students.jsx";
 import { AuthProvider } from "./Components/Auth/AuthContext.jsx";
 import "./index.css";
 import { QueryClient, QueryClientProvider } from "react-query";
@@ -67,6 +68,10 @@ const router = createBrowserRouter([
         {
           path: "attendance",
           element: <AttendanceList/>
+        },
+        {
+          path: "students",
+          element: <Students/>
         }
         ],
       },
