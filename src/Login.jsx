@@ -12,9 +12,12 @@ import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import Copyright from './Components/Layout/Copyright';
 import QuoteCard from './Components/Tables/Quote.jsx';
+import SendIcon from '@mui/icons-material/Send';
+import LoadingButton from '@mui/lab/LoadingButton';
 import LibraryHoursCard from './Components/Tables/LibraryHoursCard.jsx';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import LocalLibraryIcon from "@mui/icons-material/LocalLibrary";
+import LoginIcon from '@mui/icons-material/Login';
 import  api  from './Utils/interceptor.jsx'
 import { login } from './Utils/endpoint';
 import { useAuth } from './Components/Auth/AuthContext'; 
@@ -34,6 +37,7 @@ export default function App() {
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [currentTime, setCurrentTime] = useState("");
+  const [loading, setLoading] = useState(false);
   const [currentDate, setCurrentDate] = useState(new Date().toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
@@ -51,7 +55,7 @@ export default function App() {
   const navigate = useNavigate();
   const handleSubmit =  (event) => {
     event.preventDefault();
-
+   setLoading(true);
 
     const data = {
         "email" : email,
@@ -63,7 +67,8 @@ export default function App() {
       .then((response) => {
         auth(response)
         const userRole = response.data.user.role; 
-        
+        setLoading(false);
+
         if (userRole === 'admin') {
           navigate('/admin/dashboard');
         } else if (userRole === 'student') {
@@ -73,7 +78,7 @@ export default function App() {
           console.error('Unexpected user role:', userRole);
           navigate('/unauthorized');
         }
-
+   
 
       })
       .catch((error) => {
@@ -85,6 +90,7 @@ export default function App() {
         } else {
           console.log("Something went wrong. Please try again.");
         }
+        setLoading(false);
       });
 };
 
@@ -215,14 +221,18 @@ const handleChangeEmail = (event) => {
                 control={<Checkbox value="remember" color="primary" />}
                 label="Remember me"
               />
-              <Button
-                type="submit"
-                fullWidth
-                variant="contained"
+       
+              <LoadingButton
                 sx={{ mt: 3, mb: 2 }}
-              >
-                Sign In
-              </Button>
+                fullWidth
+               type="submit"
+                endIcon={< LoginIcon />}
+                loading={loading}
+                loadingPosition="end"
+                variant="contained"
+        >
+          <span>Send</span>
+        </LoadingButton>
               <Grid container>
                 <Grid item xs>
                   <Link href="#" variant="body2">
