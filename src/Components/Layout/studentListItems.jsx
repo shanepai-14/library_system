@@ -9,31 +9,32 @@ import PeopleIcon from "@mui/icons-material/People";
 import BarChartIcon from "@mui/icons-material/BarChart";
 import LayersIcon from "@mui/icons-material/Layers";
 import AssignmentIcon from "@mui/icons-material/Assignment";
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { Link } from "react-router-dom";
 
-const linkStyle = {
-  textDecoration: 'none',
-  color: 'inherit'
-};
 
 export const mainListItems = (
   <React.Fragment>
-    <ListItemButton>
+    <ListItemButton component={Link} to="/student/dashboard">
       <ListItemIcon>
         <DashboardIcon />
       </ListItemIcon>
-      <Link to="/admin/dashboard" style={linkStyle}>
         <ListItemText primary="Dashboard" />
-      </Link>
     </ListItemButton>
 
-    <ListItemButton>
+    <ListItemButton component={Link} to="/student/issued-books">
       <ListItemIcon>
         <LayersIcon />
       </ListItemIcon>
-       <Link to="/issue-books" style={linkStyle}>
-      <ListItemText primary="Books loans" />
-      </Link>
+      <ListItemText primary="Issued Books" />
+    </ListItemButton>
+
+
+    <ListItemButton component={Link} to="/student/account">
+      <ListItemIcon>
+        <AccountCircleIcon />
+      </ListItemIcon>
+      <ListItemText primary="Account" />
     </ListItemButton>
   </React.Fragment>
 );

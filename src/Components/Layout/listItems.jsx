@@ -9,12 +9,8 @@ import LayersIcon from "@mui/icons-material/Layers";
 import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import FaceIcon from '@mui/icons-material/Face';
+import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import { Link } from "react-router-dom";
-
-const linkStyle = {
-  textDecoration: 'none',
-  color: 'inherit'
-};
 
 export const mainListItems = (
   <React.Fragment>
@@ -59,6 +55,12 @@ export const mainListItems = (
         <PeopleIcon />
       </ListItemIcon>
       <ListItemText primary="Students" />
+    </ListItemButton>
+    <ListItemButton component={Link} to="/admin/account">
+      <ListItemIcon>
+        <AccountCircleIcon />
+      </ListItemIcon>
+      <ListItemText primary="Account" />
     </ListItemButton>
   </React.Fragment>
 );

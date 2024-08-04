@@ -135,22 +135,13 @@ const returnBook = (id) => {
 
         if (item.actual_return_date) {
           transformedItem.status = "Returned";
-        } else if (currentDate.isAfter(dueDate)) {
+          } else if (currentDate.isAfter(dueDate)) {
           transformedItem.status = "Overdue";
-        } else if (
-          currentDate.isAfter(loanDate) ||
-          currentDate.isSame(loanDate)
-        ) {
-          if (currentDate.isBefore(dueDate) || currentDate.isSame(dueDate)) {
-            transformedItem.status = "On Loan";
-          } else {
-            transformedItem.status = "Overdue";
-          }
-        } else if (currentDate.isBefore(loanDate)) {
+          } else if (currentDate.isBefore(loanDate)) {
           transformedItem.status = "Scheduled";
-        } else {
-          transformedItem.status = "Unknown";
-        }
+          } else {
+          transformedItem.status = "On Loan";
+          }
 
         return transformedItem;
       });

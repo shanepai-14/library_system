@@ -15,6 +15,8 @@ import BookLoans from "./Components/Pages/Admin/BookLoans.jsx";
 import Attendance from "./Components/Pages/Attendance/Attendance.jsx";
 import AttendanceList from "./Components/Pages/Admin/AttendancePage.jsx"
 import Students from "./Components/Pages/Admin/Students.jsx";
+import IssuedBooks from "./Components/Pages/Student/IssuedBooks.jsx";
+import Account from "./Components/Pages/Student/StudentAccount.jsx";
 import { AuthProvider } from "./Components/Auth/AuthContext.jsx";
 import "./index.css";
 import { QueryClient, QueryClientProvider } from "react-query";
@@ -72,7 +74,11 @@ const router = createBrowserRouter([
         {
           path: "students",
           element: <Students/>
-        }
+        },
+        {
+          path: "account",
+          element: <Account />,
+        },
         ],
       },
       {
@@ -86,6 +92,14 @@ const router = createBrowserRouter([
           {
             path: "dashboard",
             element: <Categories />,
+          },
+          {
+            path: "issued-books",
+            element: <IssuedBooks />,
+          },
+          {
+            path: "account",
+            element: <Account />,
           },
         ],
       },

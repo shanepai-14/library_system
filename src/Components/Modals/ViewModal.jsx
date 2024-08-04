@@ -61,20 +61,15 @@ const ViewModal = ({ open, handleClose,  viewData , url ,title , tableHeader }) 
                 const loanDate = dayjs(item.loan_date);
                 
                 if (item.actual_return_date) {
-                    transformedItem.status = 'Returned';
-                } else if (currentDate.isAfter(dueDate)) {
-                    transformedItem.status = 'Overdue';
-                } else if (currentDate.isAfter(loanDate) || currentDate.isSame(loanDate)) {
-                    if (currentDate.isBefore(dueDate) || currentDate.isSame(dueDate)) {
-                        transformedItem.status = 'On Loan';
-                    } else {
-                        transformedItem.status = 'Overdue';
-                    }
-                } else if (currentDate.isBefore(loanDate)) {
-                    transformedItem.status = 'Scheduled';
-                } else {
-                    transformedItem.status = 'Unknown';
-                }
+                  transformedItem.status = "Returned";
+                  } else if (currentDate.isAfter(dueDate)) {
+                  transformedItem.status = "Overdue";
+                  } else if (currentDate.isBefore(loanDate)) {
+                  transformedItem.status = "Scheduled";
+                  } else {
+                  transformedItem.status = "On Loan";
+                  }
+                  
             } else if(title === "Category") {
               transformedItem.author = item.author ? item.author.name : '';
               transformedItem.category = item.category ? item.category.name : '';

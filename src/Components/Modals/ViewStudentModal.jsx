@@ -63,6 +63,7 @@ const ViewStudentModal = ({ open, handleClose, data, tableRowPadding = 'none' })
   const personalInfo = [
     ['Birthday', formatDate(data.birthday, false)],
     ['Gender', data.gender],
+    ["Email", data.email],
     ['Contact Number', data.contact_number],
     ['Address', data.address],
   ];

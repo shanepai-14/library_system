@@ -103,7 +103,7 @@ const renderCellContent = (accessor, value) => {
     case "check_out" :
       return value == null ? "" : dayjs(value).format('h:mm A');
     case  "actual_return_date" :
-      return value ? value : "Not returned" 
+      return value ? formatDate(value) : <Typography color="error">Not returned</Typography>
     case "created_at":
     case "updated_at":
     case "due_date":
