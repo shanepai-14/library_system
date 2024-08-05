@@ -145,8 +145,7 @@ export default function SignUp() {
             display: 'flex',
             flexDirection: 'column',
             alignItems: 'center',
-           
-            opacity: 1,
+              opacity: 1,
            
             
           }}

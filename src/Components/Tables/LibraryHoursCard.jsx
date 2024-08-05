@@ -1,11 +1,18 @@
 import React from 'react';
 import { Card, CardContent, Typography, Box } from '@mui/material';
 import AccessTimeIcon from '@mui/icons-material/AccessTime';
+import { Link } from 'react-router-dom';
 
 const LibraryHoursCard = () => {
   return (
-    <Card   sx={{ maxWidth: 400, m: "auto", marginTop:10, backgroundColor:"#F1FAFF"}}>
-      <CardContent>
+    <Card 
+    
+    sx={{ maxWidth: 400, m: "auto", marginTop:10, backgroundColor:"#F1FAFF",}}>
+      <CardContent
+        component={Link}
+        to={'/attendance'}
+        sx={{textDecoration:'none'}}
+      >
         <Typography color="primary" variant="h3" align='center' component="div" gutterBottom>
           Library Hours
         </Typography>

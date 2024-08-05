@@ -257,11 +257,28 @@ const AttendanceSystem = () => {
         alignItems: "center",
         backgroundImage: "linear-gradient(180deg, #CEE5FD, #FFF)",
         margin: 0,
+        position: "relative",
       }}
     >
+      <Box
+      sx={{
+        position: "absolute",
+        backgroundImage: 'url("/dvc.jpg")', 
+        backgroundSize: 'cover',
+        opacity:0.2,
+        top: 0,
+        left: 0,
+        right: 0,
+        bottom: 0,
+        zIndex: 1,
+      }}
+      
+      />
       <Container
+
         maxWidth="md"
         sx={{
+          zIndex:999,
           display: "flex",
           justifyContent: "center",
           alignItems: "center",
