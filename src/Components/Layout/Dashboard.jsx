@@ -12,27 +12,37 @@ import IconButton from '@mui/material/IconButton';
 import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
-import Link from '@mui/material/Link';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { useNavigate } from 'react-router-dom';
-import { mainListItems } from './listItems';
-
+import  MainListItems  from './listItems';
+import Copyright from './Copyright';
 import { Outlet } from "react-router-dom"
-function Copyright(props) {
-  return (
-    <Typography variant="body2" color="text.secondary" align="center" {...props}>
-      {'Copyright © '}
-      <Link color="inherit" href="https://mui.com/">
-        Your Website
-      </Link>{' '}
-      {new Date().getFullYear()}
-      {'.'}
-    </Typography>
-  );
-}
-
+import { useLocation } from 'react-router-dom';
 const drawerWidth = 240;
+
+const getTitleAdmin = (pathname) => {
+  switch(pathname) {
+    case '/admin/dashboard':
+      return 'Dashboard';
+    case '/admin/categories':
+      return 'Category';
+    case '/admin/authors':
+      return 'Authors';
+    case '/admin/books':
+      return 'Books';
+    case '/admin/bookloans':
+      return 'Issue Books';
+    case '/admin/attendance':
+      return 'Attendance';
+    case '/admin/students':
+      return 'Students';
+    case '/admin/account':
+      return 'Account';
+    default:
+      return 'Dashboard';
+  }
+};
 
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== 'open',
@@ -84,6 +94,8 @@ const defaultTheme = createTheme();
 export default function Dashboard() {
   const [open, setOpen] = React.useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
+
   const toggleDrawer = () => {
     setOpen(!open);
   };
@@ -126,7 +138,7 @@ export default function Dashboard() {
               noWrap
               sx={{ flexGrow: 1 }}
             >
-              Dashboard
+          {getTitleAdmin(location.pathname)}
             </Typography>
             <IconButton color="inherit" onClick={handleLogout}>
            
@@ -150,7 +162,7 @@ export default function Dashboard() {
           </Toolbar>
           <Divider />
           <List component="nav">
-            {mainListItems}
+            <MainListItems/>
             <Divider sx={{ my: 1 }} />
           </List>
         </Drawer>

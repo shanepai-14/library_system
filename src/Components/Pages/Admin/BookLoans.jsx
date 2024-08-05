@@ -381,6 +381,7 @@ const returnBook = (id) => {
             <Box sx={{ paddingLeft: 2, paddingRight: 2 }}>
               <TextField
                 fullWidth
+        
                 id="book-loan-id"
                 label="Book Loan ID"
                 value={bookLoanId}

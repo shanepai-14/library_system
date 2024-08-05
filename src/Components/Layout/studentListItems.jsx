@@ -1,41 +1,28 @@
-import * as React from "react";
-import ListItemButton from "@mui/material/ListItemButton";
-import ListItemIcon from "@mui/material/ListItemIcon";
-import ListItemText from "@mui/material/ListItemText";
-import ListSubheader from "@mui/material/ListSubheader";
+import React from "react";
 import DashboardIcon from "@mui/icons-material/Dashboard";
-import ShoppingCartIcon from "@mui/icons-material/ShoppingCart";
-import PeopleIcon from "@mui/icons-material/People";
-import BarChartIcon from "@mui/icons-material/BarChart";
 import LayersIcon from "@mui/icons-material/Layers";
-import AssignmentIcon from "@mui/icons-material/Assignment";
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
-import { Link } from "react-router-dom";
+import NavItem from "./NavItem";
 
 
-export const mainListItems = (
+const StudentListItems = () => (
   <React.Fragment>
-    <ListItemButton component={Link} to="/student/dashboard">
-      <ListItemIcon>
-        <DashboardIcon />
-      </ListItemIcon>
-        <ListItemText primary="Dashboard" />
-    </ListItemButton>
-
-    <ListItemButton component={Link} to="/student/issued-books">
-      <ListItemIcon>
-        <LayersIcon />
-      </ListItemIcon>
-      <ListItemText primary="Issued Books" />
-    </ListItemButton>
-
-
-    <ListItemButton component={Link} to="/student/account">
-      <ListItemIcon>
-        <AccountCircleIcon />
-      </ListItemIcon>
-      <ListItemText primary="Account" />
-    </ListItemButton>
+    <NavItem 
+      to="/student/dashboard" 
+      icon={<DashboardIcon />} 
+      primary="Dashboard" 
+    />
+    <NavItem 
+      to="/student/issued-books" 
+      icon={<LayersIcon />} 
+      primary="Issued Books" 
+    />
+    <NavItem 
+      to="/student/account" 
+      icon={<AccountCircleIcon />} 
+      primary="Account" 
+    />
   </React.Fragment>
 );
 
+export default StudentListItems

@@ -77,12 +77,15 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 
 
 
-const renderCellContent = (accessor, value) => {
+const renderCellContent = (accessor, value,row) => {
   switch (accessor) {
     case "student_name":
       return <Typography>{value}</Typography>;
     case "profile_picture":
-      return  <Avatar alt="Student" size="lg" src={"https://picsum.photos/id/237/200/300"} />;
+      return  (
+        <Avatar
+        alt={row?.student_name || "Student"} sx={{height:70 ,width:70}}  src={`http://127.0.0.1:8000/storage/${value}`} />
+      );
     case "student_id":   
     case "id_number":
       return value ? (
@@ -325,7 +328,7 @@ export const DataPage = (props) => {
                     scope="row"
                     onClick={() => props.viewOnClick(row)}
                   >
-                    {renderCellContent(access.accessor, getCellValue)}
+                    {renderCellContent(access.accessor, getCellValue,row)}
                   </TableCell>
                 );
               })}

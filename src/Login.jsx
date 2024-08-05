@@ -1,6 +1,5 @@
 import  React ,{useState, useEffect} from 'react';
 import Avatar from '@mui/material/Avatar';
-import Button from '@mui/material/Button';
 import CssBaseline from '@mui/material/CssBaseline';
 import TextField from '@mui/material/TextField';
 import FormControlLabel from '@mui/material/FormControlLabel';
@@ -12,7 +11,6 @@ import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import Copyright from './Components/Layout/Copyright';
 import QuoteCard from './Components/Tables/Quote.jsx';
-import SendIcon from '@mui/icons-material/Send';
 import LoadingButton from '@mui/lab/LoadingButton';
 import LibraryHoursCard from './Components/Tables/LibraryHoursCard.jsx';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -38,6 +36,8 @@ export default function App() {
   const [password, setPassword] = useState('');
   const [currentTime, setCurrentTime] = useState("");
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState(false);
+  const [result, setResult] = useState('');
   const [currentDate, setCurrentDate] = useState(new Date().toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
@@ -82,6 +82,8 @@ export default function App() {
 
       })
       .catch((error) => {
+        setResult(error.response.data.message);
+        setError(true);
         if (
           error.response?.status === "401" ||
           error.response?.status === 401
@@ -204,6 +206,7 @@ const handleChangeEmail = (event) => {
                 autoFocus
                 onChange={handleChangeEmail}
                 value={email}
+                error={error}
               />
               <TextField
                 margin="normal"
@@ -216,6 +219,8 @@ const handleChangeEmail = (event) => {
                 autoComplete="current-password"
                 onChange={handleChangePass}
                 value={password}
+                error={error}
+                helperText={result ?? ""}
               />
               <FormControlLabel
                 control={<Checkbox value="remember" color="primary" />}
@@ -231,7 +236,7 @@ const handleChangeEmail = (event) => {
                 loadingPosition="end"
                 variant="contained"
         >
-          <span>Send</span>
+          <span>LOGIN</span>
         </LoadingButton>
               <Grid container>
                 <Grid item xs>

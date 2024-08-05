@@ -12,16 +12,39 @@ import IconButton from '@mui/material/IconButton';
 import PowerSettingsNewIcon from '@mui/icons-material/PowerSettingsNew';
 import Container from '@mui/material/Container';
 import Grid from '@mui/material/Grid';
-import Link from '@mui/material/Link';
 import MenuIcon from '@mui/icons-material/Menu';
 import ChevronLeftIcon from '@mui/icons-material/ChevronLeft';
 import { useNavigate } from 'react-router-dom';
-import { mainListItems, } from './studentListItems';
+import StudentListItems from './studentListItems';
 import Copyright from './Copyright';
 import { Outlet } from "react-router-dom"
-
+import { useLocation } from 'react-router-dom';
 
 const drawerWidth = 240;
+
+const getTitleStudent = (pathname) => {
+  switch(pathname) {
+    case '/student/dashboard':
+      return 'Dashboard';
+    case '/student/categories':
+      return 'Category';
+    case '/student/authors':
+      return 'Authors';
+    case '/student/books':
+      return 'Books';
+    case '/student/bookloans':
+      return 'Issue Books';
+    case '/student/attendance':
+      return 'Attendance';
+    case '/student/students':
+      return 'Students';
+    case '/student/account':
+      return 'Account';
+    default:
+      return 'Dashboard';
+  }
+};
+
 
 const AppBar = styled(MuiAppBar, {
   shouldForwardProp: (prop) => prop !== 'open',
@@ -73,6 +96,7 @@ const defaultTheme = createTheme();
 export default function Dashboard() {
   const [open, setOpen] = React.useState(true);
   const navigate = useNavigate();
+  const location = useLocation();
   const toggleDrawer = () => {
     setOpen(!open);
   };
@@ -81,8 +105,6 @@ export default function Dashboard() {
     // Clear localStorage
     localStorage.removeItem('authToken');
     localStorage.removeItem('userData');
-
-    // Navigate to the login page
     navigate('/');
   };
 
@@ -115,7 +137,7 @@ export default function Dashboard() {
               noWrap
               sx={{ flexGrow: 1 }}
             >
-              Dashboard
+              {getTitleStudent(location.pathname)}
             </Typography>
             <IconButton color="inherit" onClick={handleLogout}>
            
@@ -139,7 +161,7 @@ export default function Dashboard() {
           </Toolbar>
           <Divider />
           <List component="nav">
-            {mainListItems}
+            <StudentListItems/>
             <Divider sx={{ my: 1 }} />
 
           </List>

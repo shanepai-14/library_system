@@ -4,8 +4,9 @@ import AddPhotoAlternateIcon from '@mui/icons-material/AddPhotoAlternate';
 
 const FileInput = ({ onChange, fileName }) => {
     return (
-      <Grid container justifyContent={"left"} sx={{ marginTop: "20px" }}>
-        <input
+      <Grid container justifyContent={"left"} flexDirection={"row"} sx={{ marginTop: "20px",overflow:"hidden",flexWrap:'nowrap' }}>
+      <div>
+      <input
           accept="image/*"
           style={{ display: 'none' }}
           id="raised-button-file"
@@ -13,12 +14,13 @@ const FileInput = ({ onChange, fileName }) => {
           onChange={onChange}
         />
         <label htmlFor="raised-button-file">
-          <Button variant="contained" component="span" startIcon={<AddPhotoAlternateIcon/>}>
+          <Button variant="contained" component="span" sx={{whiteSpace:"nowrap"}} startIcon={<AddPhotoAlternateIcon/>}>
             Upload Image
           </Button>
         </label>
+      </div>
         {fileName && (
-          <Typography variant="body2" style={{ marginTop: 10,marginLeft:5 }}>
+          <Typography variant="body2" style={{ marginTop: 10,marginLeft:5 ,whiteSpace:"nowrap"}}>
             Selected file: {fileName}
           </Typography>
         )}
