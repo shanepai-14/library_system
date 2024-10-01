@@ -218,7 +218,7 @@ const StudentAccount = () => {
           <Grid
             item
             xs={12}
-            lg={4}
+            lg={2.7}
             sx={{
               display: "flex",
               justifyContent: "start",

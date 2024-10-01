@@ -7,6 +7,7 @@ import CalendarMonthIcon from '@mui/icons-material/CalendarMonth';
 import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import FaceIcon from '@mui/icons-material/Face';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
+import AnnouncementIcon from '@mui/icons-material/Announcement';
 import NavItem from "./NavItem";
 
 
@@ -20,6 +21,7 @@ import NavItem from "./NavItem";
     <NavItem to="/admin/attendance" icon={<CalendarMonthIcon />} primary="Attendance" />
     <NavItem to="/admin/students" icon={<PeopleIcon />} primary="Students" />
     <NavItem to="/admin/account" icon={<AccountCircleIcon />} primary="Account" />
+    <NavItem to="/admin/post" icon={<AnnouncementIcon />} primary="Post" />
   </React.Fragment>
 );
 

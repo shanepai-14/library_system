@@ -39,6 +39,8 @@ const getTitleAdmin = (pathname) => {
       return 'Students';
     case '/admin/account':
       return 'Account';
+    case '/admin/post':
+      return 'Post';
     default:
       return 'Dashboard';
   }

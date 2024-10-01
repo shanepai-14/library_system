@@ -3,7 +3,8 @@ import ReactDOM from "react-dom/client";
 import Login from "./Login.jsx";
 import Layout from "./Components/Layout/Dashboard.jsx";
 import StudentLayout from "./Components/Layout/studentDashboard.jsx";
-import Dashboard from "./Components/Pages/Dashboard.jsx";
+import StudentDashboard  from "./Components/Pages/Student/Dashboard.jsx";
+import AdminDashboard from "./Components/Pages/Admin/Dashboard.jsx";
 import Categories from "./Components/Pages/Admin/Categories.jsx";
 import Authors from "./Components/Pages/Admin/Author.jsx";
 import Books from "./Components/Pages/Admin/Books.jsx";
@@ -17,6 +18,7 @@ import AttendanceList from "./Components/Pages/Admin/AttendancePage.jsx"
 import Students from "./Components/Pages/Admin/Students.jsx";
 import IssuedBooks from "./Components/Pages/Student/IssuedBooks.jsx";
 import Account from "./Components/Pages/Student/StudentAccount.jsx";
+import FeaturePostForm from "./Components/Pages/Admin/FeaturePostForm.jsx";
 import { AuthProvider } from "./Components/Auth/AuthContext.jsx";
 import "./index.css";
 import { QueryClient, QueryClientProvider } from "react-query";
@@ -49,7 +51,7 @@ const router = createBrowserRouter([
         children: [
           {
             path: "dashboard",
-            element: <Dashboard />,
+            element: <AdminDashboard />,
           },
           {
             path: "categories",
@@ -79,6 +81,11 @@ const router = createBrowserRouter([
           path: "account",
           element: <Account />,
         },
+        {
+          path: "post",
+          element: <FeaturePostForm />,
+        },
+        
         ],
       },
       {
@@ -91,7 +98,7 @@ const router = createBrowserRouter([
         children: [
           {
             path: "dashboard",
-            element: <Categories />,
+            element: <StudentDashboard />,
           },
           {
             path: "issued-books",

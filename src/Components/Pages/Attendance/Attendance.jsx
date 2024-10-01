@@ -112,15 +112,13 @@ const AttendanceSystem = () => {
               icon: "success",
               timer: 2000
             });
-          } else if (res.data.message.includes("already checked in and out")) {
-            Swal.fire({
-              title: "You have already checked in and out for today",
-              icon: "error",
-              timer: 2000
-            });
+          } else if (res.data.message.includes("Ready for new check-in")) {
+            setStudentID(res.data.student.id);
+            setStudentName(res.data.student.first_name);
+            setShowReasons(true);
           }
 
-          if (res.data.message.includes("No check-in or check-out for today")) {
+          if (res.data.message.includes("No check-in for today")) {
             setStudentID(res.data.student.id);
             setStudentName(res.data.student.first_name);
             setShowReasons(true);

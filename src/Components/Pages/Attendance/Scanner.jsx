@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useZxing } from "react-zxing";
-import { Box } from "@mui/material";
+import { Box ,Typography } from "@mui/material";
 
 const Scanner = ({ onScan, isScanning }) => {
   const [error, setError] = useState(null);

@@ -49,3 +49,11 @@ export const checkStudent = () =>`/check-student`;
 export const postAttendance = () => `/attendance/check`;
 
 export const getAttendance = () => `/attendances`;
+
+export const PostRoute = () => `/feature-posts`;
+
+export const latestPost = () => `/latest-post`;
+
+export const adminStats = () => `/admin/stats`;
+
+export const studentStats = () => `/student/stats`;

@@ -179,8 +179,8 @@ export default function Dashboard() {
           }}
         >
           <Toolbar />
-          <Container maxWidth="lg" sx={{ mt: 4, mb: 4 }}>
-            <Grid container spacing={3}>
+          <Container maxWidth="xxl" sx={{ mt: 4, mb: 4 }}>
+            <Grid spacing={3}>
               <Outlet />
             </Grid>
             <Copyright sx={{ pt: 4 }} />

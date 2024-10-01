@@ -11,13 +11,14 @@ import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import Copyright from './Components/Layout/Copyright';
 import QuoteCard from './Components/Tables/Quote.jsx';
+import PostList from './Components/Pages/Admin/PostList.jsx';
 import LoadingButton from '@mui/lab/LoadingButton';
 import LibraryHoursCard from './Components/Tables/LibraryHoursCard.jsx';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import LocalLibraryIcon from "@mui/icons-material/LocalLibrary";
 import LoginIcon from '@mui/icons-material/Login';
 import  api  from './Utils/interceptor.jsx'
-import { login } from './Utils/endpoint';
+import { login, latestPost } from './Utils/endpoint';
 import { useAuth } from './Components/Auth/AuthContext'; 
 import { useNavigate } from 'react-router-dom';
 
@@ -38,6 +39,7 @@ export default function App() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
   const [result, setResult] = useState('');
+  const [post, setPost] = useState(null);
   const [currentDate, setCurrentDate] = useState(new Date().toLocaleDateString('en-US', {
     year: 'numeric',
     month: 'long',
@@ -45,6 +47,7 @@ export default function App() {
   }));
 
   useEffect(() => {
+    fetchPost()
     const timer = setInterval(() => {
       setCurrentTime(new Date().toLocaleTimeString());
     }, 1000);
@@ -94,6 +97,16 @@ export default function App() {
         }
         setLoading(false);
       });
+};
+
+const fetchPost = async () => {
+  try {
+    const response = await api.get(latestPost());
+    const res = response.data;
+    setPost(res);
+  } catch (error) {
+    console.error('Error fetching post:', error);
+  }
 };
 
 const handleChangePass = (event) => {
@@ -148,7 +161,8 @@ const handleChangeEmail = (event) => {
       alignItems: 'center',
     }}
   >
-    <QuoteCard />
+    {/* <QuoteCard /> */}
+     {post &&  <PostList post={post} deleteView={false}/>}
     <Typography
       color={'white'}
       variant="h1"
