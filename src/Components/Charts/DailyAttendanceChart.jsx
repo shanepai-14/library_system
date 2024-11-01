@@ -66,7 +66,7 @@ const DailyAttendanceChart = () => {
     <Card>
       <CardContent>
        <Box display="flex" justifyContent="space-between" >
-       <Typography variant="h6" gutterBottom>
+       <Typography  sx={{fontWeight:'bold', fontSize:'14px'}}>
           Today's Attendance
         </Typography>
         <MuiTooltip title="Print Chart">
@@ -78,7 +78,7 @@ const DailyAttendanceChart = () => {
             </IconButton>
           </MuiTooltip>
        </Box>
-        <Box sx={{ width: '100%', height: 400 }} ref={contentRef}>
+        <Box sx={{ width: '100%', height: 407 }} ref={contentRef}>
           <ResponsiveContainer>
             <BarChart
               data={[data]} // Wrap in array since it's single day data

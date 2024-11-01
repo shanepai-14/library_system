@@ -67,7 +67,7 @@ const WeeklyAttendanceChart = () => {
     <Card>
     <CardContent>
       <Box sx={{ mb: 0, display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <Typography  sx={{fontWeight:'bold'}}>
+        <Typography  sx={{fontWeight:'bold', fontSize:'14px'}}>
           Weekly Attendance for {new Date(selectedYear, selectedMonth - 1).toLocaleString('default', { month: 'long' })} {selectedYear}
         </Typography>
         <Box sx={{ display: 'flex', gap: 2, alignItems: 'center' }}>
