@@ -243,9 +243,10 @@ export default function SignUp() {
                   >
                     <MenuItem value="BSIT">Bachelor of Science in Information Technologoy</MenuItem>
                     <MenuItem value="BEED">Bachelor in Elementary Education</MenuItem>
-                    <MenuItem value="BSED-ENGLISH">Bachelor of Secondary Education Major In English</MenuItem>
+                    <MenuItem value="BSED-ENG">Bachelor of Secondary Education Major In English</MenuItem>
                     <MenuItem value="BSED-MATH">Bachelor of Secondary Education Major In Math</MenuItem>
                     <MenuItem value="THEO">Theology</MenuItem>
+                    <MenuItem value="SHS">SENIOR HIGH</MenuItem>
                   </Select>
                   {formErrors.course && <Typography color="error" variant="caption">{formErrors.course}</Typography>}
                 </FormControl>

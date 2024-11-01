@@ -41,11 +41,12 @@ const AttendanceSystem = () => {
   const [showReasons, setShowReasons] = useState(false);
   const [isScanning, setIsScanning] = useState(true);
   const [studentID, setStudentID] = useState("");
-  const [selectedReasons, setSelectedReasons] = useState("");
+  const [selectedReasons, setSelectedReasons] = useState([]);
   const [manualUserID, setManualUserID] = useState("");
   const [studentName, setStudentName] = useState("");
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
+
 
   useEffect(() => {
     const timer = setInterval(() => {
@@ -112,6 +113,7 @@ const AttendanceSystem = () => {
               icon: "success",
               timer: 2000
             });
+            resetStates();
           } else if (res.data.message.includes("Ready for new check-in")) {
             setStudentID(res.data.student.id);
             setStudentName(res.data.student.first_name);
@@ -232,7 +234,6 @@ const AttendanceSystem = () => {
       setShowReasons(false);
       setScanResult("");
       setSelectedReasons("");
-      setScannerKey((prevKey) => prevKey + 1);
     }, 100);
   };
 
@@ -343,18 +344,13 @@ const AttendanceSystem = () => {
                 sx={{ textAlign: "center",color: 'primary.main',marginBottom: 2}}
                 variant="h4"
               >
-                Hello {studentName} !! 
+                Hello {studentName} !!  Select reason for visit
               </Typography>
-              <Typography
-                sx={{ textAlign: "center", marginBottom: 5 }}
-                variant="h4"
-                gutterBottom
-              >
-               Select reason for visit
-              </Typography>
+            
+            
               <ReasonCards
                 reasons={reasons}
-                handleReasonClick={handleReasonClick}
+                onSubmit={handleReasonClick}
               />
             </Box>
           )}
@@ -370,7 +366,7 @@ const AttendanceSystem = () => {
         <Typography
           variant="h1"
           sx={{
-            mt: 5,
+            mt: 2,
             fontFamily: "'Orbitron', sans-serif",
             // You might want to adjust these properties for better appearance
             fontSize: "5rem",

@@ -49,3 +49,12 @@ export const formatDate = (dateString,includeWeekday = true) => {
   { headerName: "Available Copies", align: "left", accessor: "available_copies" },
 ]; 
 
+
+export const DEPARTMENTS_COLORS = {
+  'BSIT': '#8884d8',
+  'BEED': '#82ca9d',
+  'BSED-ENG': '#ffc658',
+  'BSED-MATH': '#ff7300',
+  'THEO': '#e91e63',
+  'SHS': '#0866FF'
+};

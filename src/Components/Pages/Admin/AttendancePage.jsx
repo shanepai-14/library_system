@@ -7,7 +7,11 @@ import CreateModal from '../../Modals/CreateModal';
 import { tableHeader } from '../../../Utils/helper';
 import Swal from 'sweetalert2';
 import ViewModal from '../../Modals/ViewModal';
-
+import LibraryAnalyticsDashboard from '../../Charts/LibraryAnalyticsDashboard';
+import DailyAttendanceChart from '../../Charts/DailyAttendanceChart';
+import MonthlyAttendanceChart from '../../Charts/MonthlyAttendanceChart';
+import WeeklyAttendanceChart from '../../Charts/WeeklyAttendanceChart';
+import { Grid } from '@mui/material';
 
 const AttendancePage = () => {
     const [page, setPage] = useState(1);
@@ -226,6 +230,17 @@ const AttendancePage = () => {
       ]; 
     return (
         <>
+        <LibraryAnalyticsDashboard/>
+        <Grid container spacing={2} sx={{ mb:3}}>
+          <Grid item xs={12} md={6}>
+            <DailyAttendanceChart />
+          </Grid>
+          <Grid item xs={12} md={6}>
+            <WeeklyAttendanceChart />
+          </Grid>
+        </Grid>
+         <MonthlyAttendanceChart /> 
+
          <DataTable
            columnsData={AttendanceHeader}
            data={attendance ?? []}
