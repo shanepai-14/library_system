@@ -66,6 +66,7 @@ const MonthlyAttendanceChart = () => {
           <Typography variant="h6">
             Daily Attendance for {new Date(selectedYear, selectedMonth - 1).toLocaleString('default', { month: 'long' })} {selectedYear}
           </Typography>
+          <Box display="flex" gap={2}>
           <DateFilter
             selectedYear={selectedYear}
             selectedMonth={selectedMonth}
@@ -80,6 +81,7 @@ const MonthlyAttendanceChart = () => {
               <PrintIcon />
             </IconButton>
           </MuiTooltip>
+          </Box>
         </Box>
         
         {loading ? (
