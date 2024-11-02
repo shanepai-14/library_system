@@ -33,13 +33,53 @@ export const AuthProvider = ({ children }) => {
 
   };
   const updateUserData = (updatedFields, userID) => {
-    return api  // Return the Promise chain
-      .patch(showUser(userID), updatedFields)
+    // Create a new FormData instance
+    const formData = new FormData();
+    
+    // Iterate through the updatedFields and append to FormData
+    Object.keys(updatedFields).forEach(key => {
+      if (key === 'profile_picture') {
+        // Handle profile picture file
+        console.log('profile_picture' , key ,true)
+        if (updatedFields[key] instanceof File) {
+          formData.append('profile_picture', updatedFields[key]);
+          console.log('append profile_picture' , updatedFields[key])
+        }
+      } else {
+        formData.append(key, updatedFields[key]);
+      }
+    });
+  
+    // Set headers for multipart form data
+    const config = {
+      headers: {
+        'Content-Type': 'multipart/form-data'
+      }
+    };
+  
+    return api
+      .post(`user_update/${userID}`, formData, config)
       .then((res) => {
         if (res.status === 200) {
-          const updatedUserData = { ...userData, ...updatedFields };
+          // Create updated user data object
+          const updatedUserData = { ...userData };
+          
+          // Update all fields except profile_picture
+          Object.keys(updatedFields).forEach(key => {
+            if (key !== 'profile_picture') {
+              updatedUserData[key] = updatedFields[key];
+            }
+          });
+          
+          // If there's a profile_picture in the response, update it
+          if (res.data.user.profile_picture) {
+            updatedUserData.profile_picture = res.data.user.profile_picture;
+          }
+  
+          // Update state and localStorage
           setUserData(updatedUserData);
           localStorage.setItem('userData', JSON.stringify(updatedUserData));
+  
           Swal.fire({
             title: "Success!",
             text: "User data updated successfully.",
@@ -57,15 +97,12 @@ export const AuthProvider = ({ children }) => {
   
         Swal.fire({
           title: "Error!",
-          text: "Failed to update user data. Please try again.",
+          text: error.response?.data?.message || "Failed to update user data. Please try again.",
           icon: "error",
           confirmButtonText: "OK",
         });
   
         return false;
-      })
-      .finally(() => {
-        // You can add any cleanup or final actions here if needed
       });
   };
   const logout = () => {

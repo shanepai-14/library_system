@@ -21,7 +21,7 @@ import  api  from './Utils/interceptor.jsx'
 import { login, latestPost } from './Utils/endpoint';
 import { useAuth } from './Components/Auth/AuthContext'; 
 import { useNavigate } from 'react-router-dom';
-
+import AnnouncementCard from './Components/Layout/AnnouncementCard.jsx';
 
 // TODO remove, this demo shouldn't need to reset the theme.
 
@@ -162,14 +162,14 @@ const handleChangeEmail = (event) => {
     }}
   >
     {/* <QuoteCard /> */}
-     {post &&  <PostList post={post} deleteView={false}/>}
+     {post &&  <AnnouncementCard announcement={post} deleteView={false}/>}
     <Typography
       color={'white'}
       variant="h1"
       sx={{
         mt: 5,
         fontFamily: "'Orbitron', sans-serif",
-        fontSize: "5rem",
+        fontSize: "4rem",
         letterSpacing: "0.1em",
         fontWeight: "bold",
       }}
@@ -182,7 +182,7 @@ const handleChangeEmail = (event) => {
       sx={{
         mt: 3,
         fontFamily: "'Orbitron', sans-serif",
-        fontSize: "5rem",
+        fontSize: "4rem",
         letterSpacing: "0.1em",
         fontWeight: "bold",
       }}
@@ -194,7 +194,7 @@ const handleChangeEmail = (event) => {
         <Grid item xs={12} sm={8} md={5} component={Paper} elevation={6} square>
           <Box
             sx={{
-              mt: 20,
+              mt: 5,
               mx: 4,
               display: 'flex',
               flexDirection: 'column',
@@ -266,7 +266,7 @@ const handleChangeEmail = (event) => {
               </Grid>
               <LibraryHoursCard/>
             </Box>
-            <Copyright sx={{ mt: 5 }} />
+
           </Box>
         </Grid>
       </Grid>
