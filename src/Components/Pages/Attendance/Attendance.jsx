@@ -5,6 +5,7 @@ import {
   Container,
   TextField,
   LinearProgress,
+  Paper,
 } from "@mui/material";
 import { postAttendance, checkStudent } from "../../../Utils/endpoint";
 import api from "../../../Utils/interceptor";
@@ -13,14 +14,84 @@ import Swal from "sweetalert2";
 import ReasonCards from "./ReasonCards";
 import Scanner from "./Scanner";
 import LocalLibraryIcon from "@mui/icons-material/LocalLibrary";
+import { styled } from '@mui/material/styles';
+
+
+const StyledContainer = styled(Container)(({ theme }) => ({
+  minHeight: '100vh',
+  display: 'flex',
+  justifyContent: 'center',
+  alignItems: 'center',
+  position: 'relative',
+  padding: theme.spacing(3),
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundImage: 'url("/library.jpg")',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    opacity: 0.15,
+    zIndex: -1
+  }
+}));
+
+const GlassBox = styled(Paper)(({ theme }) => ({
+  backdropFilter: 'blur(10px)',
+  backgroundColor: 'rgba(255, 255, 255, 0.9)',
+  borderRadius: theme.spacing(2),
+  padding: theme.spacing(4),
+  boxShadow: '0 8px 32px rgba(0, 0, 0, 0.1)',
+  border: '1px solid rgba(255, 255, 255, 0.2)',
+  display: 'flex',
+  flexDirection: 'column',
+  alignItems: 'center',
+  gap: theme.spacing(3),
+  maxWidth: '600px',
+  width: '100%',
+  margin: 'auto'
+}));
+
+const DigitalClock = styled(Typography)(({ theme }) => ({
+  fontFamily: "'Orbitron', sans-serif",
+  fontSize: '3.5rem',
+  letterSpacing: '0.1em',
+  color: theme.palette.primary.main,
+  textAlign:'center',
+  textShadow: '0 0 20px rgba(0, 0, 0, 0.1)',
+  marginTop: theme.spacing(3),
+  [theme.breakpoints.down('sm')]: {
+    fontSize: '2.5rem',
+  }
+}));
+
+const StyledTextField = styled(TextField)(({ theme }) => ({
+  '& .MuiOutlinedInput-root': {
+    backgroundColor: 'rgba(255, 255, 255, 0.9)',
+    borderRadius: theme.spacing(1),
+    '&:hover': {
+      '& .MuiOutlinedInput-notchedOutline': {
+        borderColor: theme.palette.primary.main,
+      }
+    }
+  }
+}));
+
 function LinearProgressWithLabel(props) {
   return (
-    <Box sx={{ display: "flex", alignItems: "center" }}>
+    <Box sx={{ display: "flex", alignItems: "center", width: '100%' }}>
       <Box sx={{ width: "100%", mr: 1 }}>
         <LinearProgress
           sx={{
-            "--LinearProgress-progressThickness": "24px",
-            "--LinearProgress-thickness": "24px",
+            height: 10,
+            borderRadius: 5,
+            backgroundColor: 'rgba(0, 0, 0, 0.1)',
+            '& .MuiLinearProgress-bar': {
+              borderRadius: 5
+            }
           }}
           variant="determinate"
           {...props}
@@ -62,35 +133,6 @@ const AttendanceSystem = () => {
     }
   }, [selectedReasons]);
 
-  // const fetchStudentData = (id) => {
-  //   setLoading(true);
-  //   const data = {
-  //     id_number: id,
-  //   };
-
-  //   api
-  //     .post(checkStudent(), data)
-  //     .then((res) => {
-  //       console.log(res.data);
-  //       if (res.data.found) {
-  //         setStudentID(res.data.student.id);
-  //         setShowReasons(true);
-  //         setStudentName(res.data.student.first_name);
-  //       }
-  //     })
-  //     .catch((error) => {
-  //       Swal.fire({
-  //         icon: "error",
-  //         title: "Student Not Found",
-  //         text: "No student found with the provided ID number.",
-  //         confirmButtonText: "OK",
-  //       });
-  //     })
-  //     .finally(() => {
-  //       setIsScanning(true);
-  //       setLoading(false);
-  //     });
-  // };
 
   const fetchStudentData = (id) => {
     setLoading(true);
@@ -249,137 +291,83 @@ const AttendanceSystem = () => {
   ];
 
   return (
-    <Container
-      maxWidth="100%"
-      sx={{
-        height: "100vh",
-        display: "flex",
-        justifyContent: "center",
-        alignItems: "center",
-        backgroundImage: "linear-gradient(180deg, #CEE5FD, #FFF)",
-        margin: 0,
-        position: "relative",
-      }}
-    >
-      <Box
-      sx={{
-        position: "absolute",
-        backgroundImage: 'url("/dvc.jpg")', 
-        backgroundSize: 'cover',
-        opacity:0.2,
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        zIndex: 1,
-      }}
-      
-      />
-      <Container
-
-        maxWidth="md"
-        sx={{
-          zIndex:999,
-          display: "flex",
-          justifyContent: "center",
-          alignItems: "center",
-          flexDirection: "column",
-        }}
-      >
+    <StyledContainer maxWidth={false}>
+      <Box sx={{ width: '100%', maxWidth: '1200px', margin: 'auto' }}>
         <Typography
           variant="h3"
-          component="h3"
-          mb={4}
-          mt={2}
-          color="text.primary"
-          gutterBottom
-        >
-          <LocalLibraryIcon fontSize="inherit"/> Library Attendance System
-        </Typography>
-
-        <Box
+          component="h1"
           sx={{
-            padding: 5,
-            display: "flex",
-            flexDirection: "column",
-            alignItems: "center",
-            justifyContent: "center",
-            boxShadow: 3,
-            borderColor: "primary.light",
-            borderRadius: "10px",
-            border: "1px solid rgb(156, 204, 252)",
-            background: "white;",
+            textAlign: 'center',
+            mb: 4,
+            color: 'primary.main',
+            fontWeight: 700,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: 2
           }}
         >
+          <LocalLibraryIcon fontSize="inherit"/>
+          Library Attendance System
+        </Typography>
+
+        <GlassBox>
           {progress !== 0 ? (
-            <Box width={500} sx={{ marginTop: 20 }}>
-              <Typography
-                variant="h6"
-                sx={{ textAlign: "center" }}
-                gutterBottom
-              >
-                Uploading Attendance
+            <Box sx={{ width: '100%', p: 2 }}>
+              <Typography variant="h6" sx={{ textAlign: "center", mb: 2 }}>
+                Processing Attendance...
               </Typography>
               <LinearProgressWithLabel value={progress} />
             </Box>
           ) : !showReasons ? (
-            <Box
-              sx={{
-                width: "100%",
-                maxWidth: 500,
-                position: "relative",
-              }}
-            >
-              <TextField
-                label="Enter User ID manually Or Scan QR Code"
+            <Box sx={{ width: '100%' }}>
+              <StyledTextField
+                label="Enter User ID or Scan QR Code"
                 variant="outlined"
                 value={manualUserID}
                 onChange={handleInputChange}
                 fullWidth
-                margin="normal"
-                sx={{ marginTop: 0, bgcolor: "white" }}
+                sx={{ mb: 2 }}
               />
+              <Box sx={{ width: '100%', mt: 2 }}>
+                <Scanner onScan={handleScan} isScanning={isScanning} />
+                {loading && (
+                  <LinearProgress 
+                    sx={{ 
+                      mt: 2, 
+                      height: 6, 
+                      borderRadius: 3 
+                    }} 
+                  />
+                )}
+              </Box>
             </Box>
           ) : (
-            <Box>
+            <Box sx={{ width: '100%' }}>
               <Typography
-                sx={{ textAlign: "center",color: 'primary.main',marginBottom: 2}}
                 variant="h4"
+                sx={{
+                  textAlign: "center",
+                  color: 'primary.main',
+                  mb: 3,
+                  fontWeight: 600
+                }}
               >
-                Hello {studentName} !!  Select reason for visit
+                Welcome, {studentName}!
+                <Typography variant="h6" color="text.secondary" sx={{ mt: 1 }}>
+                  Please select your reason for visiting
+                </Typography>
               </Typography>
-            
-            
-              <ReasonCards
-                reasons={reasons}
-                onSubmit={handleReasonClick}
-              />
+              <ReasonCards reasons={reasons} onSubmit={handleReasonClick} />
             </Box>
           )}
+        </GlassBox>
 
-          {!showReasons && (
-            <Box width="500px">
-              <Scanner onScan={handleScan} isScanning={isScanning} />
-              {loading && <LinearProgress thickness={20} color="primary" />}
-            </Box>
-          )}
-        </Box>
-
-        <Typography
-          variant="h1"
-          sx={{
-            mt: 2,
-            fontFamily: "'Orbitron', sans-serif",
-            // You might want to adjust these properties for better appearance
-            fontSize: "5rem",
-            letterSpacing: "0.1em",
-            fontWeight: "normal",
-          }}
-        >
+        <DigitalClock>
           {currentTime}
-        </Typography>
-      </Container>
-    </Container>
+        </DigitalClock>
+      </Box>
+    </StyledContainer>
   );
 };
 
