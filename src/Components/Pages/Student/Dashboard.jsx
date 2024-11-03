@@ -15,7 +15,7 @@ import  Snackbar  from "@mui/material/Snackbar";
 import { Link } from 'react-router-dom';
 import { studentStats} from "../../../Utils/endpoint";
 import api from "../../../Utils/interceptor";
-import DashboardCardSkeleton from "../Admin/DashboardCardSkeleton";
+import DashboardCardSkeleton from "../../Common/DashboardCardSkeleton";
 
 const iconMapping = {
   'Issued Books': AssignmentIcon,

@@ -13,8 +13,8 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import ReactQuill from 'react-quill';
 import 'react-quill/dist/quill.snow.css';
 import api from '../../../Utils/interceptor';
-import PostList from './PostList';
-import PostSkeleton from './PostSkelenton';
+import PostList from '../../Common/PostList';
+import PostSkeleton from '../../Common/PostSkelenton';
 import AnnouncementIcon from '@mui/icons-material/Announcement';
 import { PostRoute } from '../../../Utils/endpoint';
 

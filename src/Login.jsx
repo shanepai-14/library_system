@@ -11,7 +11,7 @@ import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
 import Copyright from './Components/Layout/Copyright';
 import QuoteCard from './Components/Tables/Quote.jsx';
-import PostList from './Components/Pages/Admin/PostList.jsx';
+import PostList from './Components/Common/PostList.jsx';
 import LoadingButton from '@mui/lab/LoadingButton';
 import LibraryHoursCard from './Components/Tables/LibraryHoursCard.jsx';
 import { createTheme, ThemeProvider } from '@mui/material/styles';

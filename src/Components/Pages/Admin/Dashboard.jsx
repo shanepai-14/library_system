@@ -11,7 +11,7 @@ import PersonIcon from "@mui/icons-material/Person";
 import AnnouncementIcon from "@mui/icons-material/Announcement";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import Snackbar from "@mui/material/Snackbar";
-import DashboardCardSkeleton from './DashboardCardSkeleton';
+import DashboardCardSkeleton from '../../Common/DashboardCardSkeleton';
 import { Link } from "react-router-dom";
 import { adminStats } from "../../../Utils/endpoint";
 import api from "../../../Utils/interceptor";
