@@ -9,9 +9,6 @@ import Paper from '@mui/material/Paper';
 import Box from '@mui/material/Box';
 import Grid from '@mui/material/Grid';
 import Typography from '@mui/material/Typography';
-import Copyright from './Components/Layout/Copyright';
-import QuoteCard from './Components/Tables/Quote.jsx';
-import PostList from './Components/Common/PostList.jsx';
 import LoadingButton from '@mui/lab/LoadingButton';
 import LibraryHoursCard from './Components/Tables/LibraryHoursCard.jsx';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
@@ -131,7 +128,7 @@ const handleChangeEmail = (event) => {
     justifyContent: 'center',
     alignItems: 'center',
     flexDirection: 'column',
-    backgroundImage: 'url("/dvc.jpg")',
+    backgroundImage: 'url("/library.jpg")',
     backgroundColor: (t) =>
       t.palette.mode === 'light' ? t.palette.grey[50] : t.palette.grey[900],
     backgroundSize: 'cover',
