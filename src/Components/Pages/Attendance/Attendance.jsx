@@ -136,10 +136,12 @@ const AttendanceSystem = () => {
         }
       })
       .catch((error) => {
+        const errorMessage = error.response?.data?.message || "An error occurred while fetching student data.";
+        
         Swal.fire({
           icon: "error",
           title: "Error",
-          text: "An error occurred while fetching student data.",
+          text: errorMessage,
           confirmButtonText: "OK",
           timer: 2000
         });
