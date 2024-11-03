@@ -6,15 +6,15 @@ const AutoRedirect = () => {
   const { userData } = useAuth();
   const navigate = useNavigate();
 
-  useEffect(() => {
-    if (userData) {
-      if (userData.role === 'admin') {
-        navigate('/admin/dashboard');
-      } else if (userData.role === 'student') {
-        navigate('/student/dashboard');
-      }
-    }
-  }, [userData, navigate]);
+  // useEffect(() => {
+  //   if (userData) {
+  //     if (userData.role === 'admin') {
+  //       navigate('/admin/dashboard');
+  //     } else if (userData.role === 'student') {
+  //       navigate('/student/dashboard');
+  //     }
+  //   }
+  // }, [userData, navigate]);
 
   return <Outlet />;
 };
