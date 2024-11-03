@@ -27,7 +27,6 @@ import {
   Dialog,
   DialogTitle,
   DialogContent,
-  DialogActions,
   Button,
   Tooltip,
   Badge,
@@ -51,11 +50,7 @@ const PhotoUpload = ({ onPhotoChange, error }) => {
   const fileInputRef = useRef(null);
   const webcamRef = useRef(null);
 
-  const videoConstraints = {
-    facingMode: facingMode,
-    width: 1280,
-    height: 720,
-  };
+
 
   const handleUploadClick = () => {
     fileInputRef.current.click();
@@ -217,10 +212,10 @@ const PhotoUpload = ({ onPhotoChange, error }) => {
                   ref={webcamRef}
                   audio={false}
                   screenshotFormat="image/jpeg"
-                  videoConstraints={videoConstraints}
                   style={{
                     width: "100%",
                     height: "auto",
+                    objectFit: "cover"
                   }}
                 />
 
