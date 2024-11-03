@@ -21,12 +21,21 @@ import Account from "./Components/Pages/Student/StudentAccount.jsx";
 import FeaturePostForm from "./Components/Pages/Admin/FeaturePostForm.jsx";
 import { AuthProvider } from "./Components/Auth/AuthContext.jsx";
 import "./index.css";
-import { QueryClient, QueryClientProvider } from "react-query";
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
 import { createBrowserRouter, RouterProvider ,Navigate} from "react-router-dom";
 import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+
 import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false, // disable automatic refetching on window focus
+      retry: 1, // retry failed queries once by default
+    },
+  },
+});
+
 const router = createBrowserRouter([
 {
   path: "/",
@@ -130,15 +139,19 @@ const router = createBrowserRouter([
 ]);
 
 ReactDOM.createRoot(document.getElementById("root")).render(
+  <QueryClientProvider client={queryClient}>
   <React.StrictMode>
      <LocalizationProvider dateAdapter={AdapterDayjs}>
+
     <AuthProvider>
-      <QueryClientProvider client={queryClient}>
+
 
         <RouterProvider router={router} />
-      </QueryClientProvider>
+
     </AuthProvider>
+
     </LocalizationProvider>
   </React.StrictMode>
+  </QueryClientProvider>
 );
 

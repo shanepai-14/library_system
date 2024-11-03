@@ -1,4 +1,5 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useRef, useState } from "react";
+import { useQuery } from '@tanstack/react-query';
 import {
   Box,
   Card,
@@ -26,19 +27,11 @@ import api from "../../Utils/interceptor";
 import { DEPARTMENTS_COLORS } from "../../Utils/helper";
 import { useReactToPrint } from "react-to-print";
 import PrintIcon from "@mui/icons-material/Print";
+
+// Constants
 const monthNames = [
-  "January",
-  "February",
-  "March",
-  "April",
-  "May",
-  "June",
-  "July",
-  "August",
-  "September",
-  "October",
-  "November",
-  "December",
+  "January", "February", "March", "April", "May", "June",
+  "July", "August", "September", "October", "November", "December"
 ];
 
 const yearLevels = [
@@ -51,155 +44,181 @@ const yearLevels = [
   { value: "Grade 12", label: "Grade 12" },
 ];
 
+const YEARS = Array.from({ length: 5 }, (_, i) => 2024 - i);
+
 const LibraryAnalyticsDashboard = () => {
   const [selectedYear, setSelectedYear] = useState(2024);
   const [selectedYearLevel, setSelectedYearLevel] = useState("all");
-  const [loading, setLoading] = useState(false);
-  const [data, setData] = useState([]);
-
   const contentRef = useRef(null);
-  const handlePrint = useReactToPrint({
-    contentRef,
-    documentTitle: `Todays_Attendance`,
-    removeAfterPrint: true,
-  });
 
-  // Generate last 5 years for select
-  const years = Array.from({ length: 5 }, (_, i) => 2024 - i);
-
-  const monthTickFormatter = (tick) => {
-    return tick;
-  };
-
-  const renderQuarterTick = (tickProps) => {
-    const { x, y, payload } = tickProps;
-    const month = payload.value;
-    const quarterNo = Math.floor((parseInt(month) - 1) / 3) + 1;
-
-    if ((parseInt(month) - 1) % 3 === 1) {
-      return <text x={x} y={y - 4} textAnchor="middle">{`Q${quarterNo}`}</text>;
-    }
-
-    return null;
-  };
-
-  const fetchAnalytics = async () => {
-    try {
-      setLoading(true);
-      const response = await api.get(`/attendance/analytics`, {
+  // Query for fetching analytics data
+  const {
+    data: analyticsData = [],
+    isLoading,
+    isError,
+    error
+  } = useQuery({
+    queryKey: ['libraryAnalytics', selectedYear, selectedYearLevel],
+    queryFn: async () => {
+      const response = await api.get('/attendance/analytics', {
         params: {
           year: selectedYear,
           year_level: selectedYearLevel,
-        },
+        }
       });
-      const convertedData = response.data.map((item) => ({
-        ...item,
-        month: monthNames[item.month - 1], // -1 because array is 0-based but months start at 1
-      }));
 
-      setData(convertedData);
-    } catch (error) {
+      // Transform the data
+      return response.data.map(item => ({
+        ...item,
+        month: monthNames[item.month - 1],
+      }));
+    },
+    staleTime: 300000, // Consider data fresh for 5 minutes
+    retry: 2,
+    onError: (error) => {
       console.error("Error fetching analytics:", error);
-    } finally {
-      setLoading(false);
     }
+  });
+
+  // Print handler
+  const handlePrint = useReactToPrint({
+    content: () => contentRef.current,
+    documentTitle: `Library_Attendance_${selectedYear}_${selectedYearLevel}`,
+    removeAfterPrint: true,
+  });
+
+  // Chart formatters
+  const monthTickFormatter = (tick) => tick;
+
+  const renderQuarterTick = (tickProps) => {
+    const { x, y, payload } = tickProps;
+    const monthIndex = monthNames.indexOf(payload.value);
+    const quarterNo = Math.floor(monthIndex / 3) + 1;
+
+    if (monthIndex % 3 === 1) {
+      return <text x={x} y={y - 4} textAnchor="middle">{`Q${quarterNo}`}</text>;
+    }
+    return null;
   };
 
-  useEffect(() => {
-    fetchAnalytics();
-  }, [selectedYear, selectedYearLevel]);
+  // Render functions
+  const renderFilters = () => (
+    <Box sx={{ display: "flex", gap: 2 }}>
+      <FormControl sx={{ minWidth: 120 }}>
+        <InputLabel>Year</InputLabel>
+        <Select
+          value={selectedYear}
+          label="Year"
+          onChange={(e) => setSelectedYear(e.target.value)}
+        >
+          {YEARS.map((year) => (
+            <MenuItem key={year} value={year}>{year}</MenuItem>
+          ))}
+        </Select>
+      </FormControl>
 
+      <FormControl sx={{ minWidth: 120 }}>
+        <InputLabel>Year Level</InputLabel>
+        <Select
+          value={selectedYearLevel}
+          label="Year Level"
+          onChange={(e) => setSelectedYearLevel(e.target.value)}
+        >
+          {yearLevels.map((level) => (
+            <MenuItem key={level.value} value={level.value}>
+              {level.label}
+            </MenuItem>
+          ))}
+        </Select>
+      </FormControl>
+      <MuiTooltip title="Print Chart">
+        <IconButton onClick={handlePrint} size="small">
+          <PrintIcon />
+        </IconButton>
+      </MuiTooltip>
+    </Box>
+  );
 
+  const renderChart = () => (
+    <ResponsiveContainer>
+      <BarChart
+        data={analyticsData}
+        margin={{
+          top: 20,
+          right: 30,
+          left: 20,
+          bottom: 5,
+        }}
+      >
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="month" tickFormatter={monthTickFormatter} />
+        <XAxis
+          dataKey="month"
+          axisLine={false}
+          tickLine={false}
+          interval={0}
+          tick={renderQuarterTick}
+          height={1}
+          scale="band"
+          xAxisId="quarter"
+        />
+        <YAxis />
+        <Tooltip />
+        <Legend />
+        {Object.entries(DEPARTMENTS_COLORS).map(([dept, color]) => (
+          <Bar key={dept} dataKey={dept} fill={color} name={dept} />
+        ))}
+      </BarChart>
+    </ResponsiveContainer>
+  );
 
   return (
     <Box sx={{ p: 3 }}>
-      <Box
-        sx={{
-          mb: 3,
-          display: "flex",
-          justifyContent: "space-between",
-          alignItems: "center",
-        }}
-      >
+      <Box sx={{
+        mb: 3,
+        display: "flex",
+        justifyContent: "space-between",
+        alignItems: "center",
+      }}>
         <Typography variant="h4" gutterBottom>
           Library Attendance Analytics
         </Typography>
-        <Box sx={{ display: "flex", gap: 2 }}>
-          <FormControl sx={{ minWidth: 120 }}>
-            <InputLabel>Year</InputLabel>
-            <Select
-              value={selectedYear}
-              label="Year"
-              onChange={(e) => setSelectedYear(e.target.value)}
-            >
-              {years.map((year) => (
-                <MenuItem key={year} value={year}>
-                  {year}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-
-          <FormControl sx={{ minWidth: 120 }}>
-            <InputLabel>Year Level</InputLabel>
-            <Select
-              value={selectedYearLevel}
-              label="Year Level"
-              onChange={(e) => setSelectedYearLevel(e.target.value)}
-            >
-              {yearLevels.map((level) => (
-                <MenuItem key={level.value} value={level.value}>
-                  {level.label}
-                </MenuItem>
-              ))}
-            </Select>
-          </FormControl>
-          <MuiTooltip title="Print Chart">
-            <IconButton onClick={handlePrint} size="small">
-              <PrintIcon />
-            </IconButton>
-          </MuiTooltip>
-        </Box>
+        {renderFilters()}
       </Box>
 
       <Card>
         <CardContent>
-          <Box sx={{ width: "100%", height: 500 , backgroundColor:"white"}} ref={contentRef}>
-            {loading ? (
-            <Box display="flex" justifyContent="center" alignItems="center" height={400}  sx={{backgroundColor:'white'}}>
-              <CircularProgress />
-            </Box>
+          <Box 
+            sx={{ 
+              width: "100%", 
+              height: 500, 
+              backgroundColor: "white" 
+            }} 
+            ref={contentRef}
+          >
+            {isLoading ? (
+              <Box 
+                display="flex" 
+                justifyContent="center" 
+                alignItems="center" 
+                height={400} 
+                sx={{ backgroundColor: 'white' }}
+              >
+                <CircularProgress />
+              </Box>
+            ) : isError ? (
+              <Box 
+                display="flex" 
+                justifyContent="center" 
+                alignItems="center" 
+                height={400}
+              >
+                <Typography color="error">
+                  Error loading data: {error.message}
+                </Typography>
+              </Box>
             ) : (
-              <ResponsiveContainer>
-                <BarChart
-                  data={data}
-                  margin={{
-                    top: 20,
-                    right: 30,
-                    left: 20,
-                    bottom: 5,
-                  }}
-                >
-                  <CartesianGrid strokeDasharray="3 3" />
-                  <XAxis dataKey="month" tickFormatter={monthTickFormatter} />
-                  <XAxis
-                    dataKey="month"
-                    axisLine={false}
-                    tickLine={false}
-                    interval={0}
-                    tick={renderQuarterTick}
-                    height={1}
-                    scale="band"
-                    xAxisId="quarter"
-                  />
-                  <YAxis />
-                  <Tooltip />
-                  <Legend />
-                  {Object.entries(DEPARTMENTS_COLORS).map(([dept, color]) => (
-                    <Bar key={dept} dataKey={dept} fill={color} name={dept} />
-                  ))}
-                </BarChart>
-              </ResponsiveContainer>
+              renderChart()
             )}
           </Box>
         </CardContent>

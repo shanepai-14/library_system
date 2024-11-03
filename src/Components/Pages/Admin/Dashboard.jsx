@@ -1,5 +1,5 @@
-import React, { useEffect, useState } from "react";
-import Paper from "@mui/material/Paper";
+import React from "react";
+import { useQuery } from "@tanstack/react-query";
 import Grid from "@mui/material/Grid";
 import Typography from "@mui/material/Typography";
 import Card from "@mui/material/Card";
@@ -11,10 +11,11 @@ import PersonIcon from "@mui/icons-material/Person";
 import AnnouncementIcon from "@mui/icons-material/Announcement";
 import AssignmentIcon from "@mui/icons-material/Assignment";
 import Snackbar from "@mui/material/Snackbar";
+import DashboardCardSkeleton from './DashboardCardSkeleton';
 import { Link } from "react-router-dom";
 import { adminStats } from "../../../Utils/endpoint";
 import api from "../../../Utils/interceptor";
-import DashboardCardSkeleton from "./DashboardCardSkeleton";
+
 const iconMapping = {
   Students: SchoolIcon,
   Attendance: EventIcon,
@@ -29,9 +30,7 @@ const DashboardCard = ({ title, count, bgColor, link }) => {
   const IconComponent = iconMapping[title] || AssignmentIcon;
   return (
     <Link to={link} style={{ textDecoration: "none" }}>
-      <Card
-        style={{ backgroundColor: bgColor, borderRadius: "12px", width: 220 }}
-      >
+      <Card style={{ backgroundColor: bgColor, borderRadius: "12px", width: 220 }}>
         <CardContent
           style={{
             display: "flex",
@@ -40,9 +39,7 @@ const DashboardCard = ({ title, count, bgColor, link }) => {
             paddingBottom: "16px",
           }}
         >
-          <div
-            style={{ marginRight: "20px", fontSize: "40px", color: "white" }}
-          >
+          <div style={{ marginRight: "20px", fontSize: "40px", color: "white" }}>
             <IconComponent fontSize="inherit" />
           </div>
           <div>
@@ -59,38 +56,43 @@ const DashboardCard = ({ title, count, bgColor, link }) => {
   );
 };
 
+// Custom hook for fetching stats
+const useStats = () => {
+  return useQuery({
+    queryKey: ['adminStats'],
+    queryFn: async () => {
+      const response = await api.get(adminStats());
+      return response.data;
+    },
+    staleTime: 5 * 60 * 1000, // Consider data stale after 5 minutes
+    retry: 2, // Retry failed requests twice
+  });
+};
+
 const Dashboard = () => {
-  const [stats, setStats] = useState(null);
-  const [loading, setLoading] = useState(true);
-  const [snackbar, setSnackbar] = useState({ open: false, message: "" });
+  const [snackbarState, setSnackbarState] = React.useState({
+    open: false,
+    message: "",
+  });
 
-  useEffect(() => {
-    fetchStats();
-  }, []);
+  const {
+    data: stats,
+    isLoading,
+    isError,
+    error,
+  } = useStats();
 
-  const fetchStats = () => {
-    setLoading(true);
-    api
-      .get(adminStats())
-      .then((res) => {
-        setStats(res.data);
-        setSnackbar({ open: true, message: "Stats fetched successfully!" });
-        console.log(res.data);
-      })
-      .catch((error) => {
-        setSnackbar({
-          open: true,
-          message: "Error fetching stats. Please try again.",
-        });
-        console.error("Error fetching stats:", error);
-      })
-      .finally(() => {
-        setLoading(false);
+  React.useEffect(() => {
+    if (isError) {
+      setSnackbarState({
+        open: true,
+        message: "Error fetching stats. Please try again.",
       });
-  };
+    }
+  }, [isError]);
 
   const handleCloseSnackbar = () => {
-    setSnackbar({ ...snackbar, open: false });
+    setSnackbarState((prev) => ({ ...prev, open: false }));
   };
 
   return (
@@ -102,11 +104,11 @@ const Dashboard = () => {
         md={4}
         sx={{ display: "flex", gap: 2, flexWrap: "wrap" }}
       >
-        {loading
+        {isLoading
           ? Array.from(new Array(8)).map((_, index) => (
-              <DashboardCardSkeleton />
+              <DashboardCardSkeleton key={index} />
             ))
-          : stats.map((item, index) => (
+          : stats?.map((item, index) => (
               <DashboardCard
                 key={index}
                 title={item.title}
@@ -117,10 +119,10 @@ const Dashboard = () => {
             ))}
       </Grid>
       <Snackbar
-        open={snackbar.open}
+        open={snackbarState.open}
         autoHideDuration={6000}
         onClose={handleCloseSnackbar}
-        message={snackbar.message}
+        message={snackbarState.message}
       />
     </>
   );

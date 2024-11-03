@@ -12,40 +12,26 @@ import CreateCategoryModal from "../../Modals/CreateModal";
 import Swal from "sweetalert2";
 import ViewModal from "../../Modals/ViewModal";
 import { tableHeader } from "../../../Utils/helper";
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 
 const Categories = () => {
+  const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
-  const [categories, setCategories] = useState([]);
   const [row, setRow] = useState(5);
-  const [total, setTotal] = useState(0);
   const [search, setSearch] = useState("");
-  const [loading, setLoading] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [viewData, setViewData] = useState({ id: 0 });
 
-  useEffect(() => {
-    fetchCategories();
-  }, [page, row, search]);
+  const { data: categories, isLoading } = useQuery({
+    queryKey: ['categories', page, row, search],
+    queryFn: () => api.get(getCategories(), { 
+      params: { page, row, search } 
+    }).then(res => res.data),
+  })
 
-  const fetchCategories = () => {
-    setLoading(true);
-
-    const params = {
-      page: page,
-      row: row,
-      search: search,
-    };
-
-    api.get(getCategories(), { params }).then((res) => {
-      console.log(res);
-      setCategories(res.data);
-      setTotal(res.data.total);
-      setLoading(false);
-    });
-  };
   const handleSearchChange = (val) => {
     setSearch(val);
     setPage(1); // Reset to first page on new search
@@ -65,80 +51,78 @@ const Categories = () => {
     setSelectedRow(row);
     setIsModalOpen(true);
   };
-
   const handleCreate = (newCategoryData) => {
-    setLoading(true);
-
-    api
-      .post(getCategories(), newCategoryData)
-      .then((res) => {
-        console.log("Category created:", res.data);
-
-        Swal.fire({
-          title: "Success!",
-          text: "New category has been created.",
-          icon: "success",
-          confirmButtonText: "OK",
-        });
-
-        fetchCategories(); // Refresh the list
-      })
-      .catch((error) => {
-        console.error("Error creating category:", error);
-
-        Swal.fire({
-          title: "Error!",
-          text: "Failed to create category. Please try again.",
-          icon: "error",
-          confirmButtonText: "OK",
-        });
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    createMutation.mutate(newCategoryData);
   };
+
+  const createMutation = useMutation({
+    mutationFn: (newCategoryData) => api.post(getCategories(), newCategoryData),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['categories']);
+      Swal.fire({
+        title: "Success!",
+        text: "New category has been created.",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+    },
+    onError: () => {
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to create category. Please try again.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    },
+  });
 
   const handleSave = (editedData) => {
-    setLoading(true);
-
-    api
-      .put(updateCategory(editedData.id), editedData)
-      .then((res) => {
-        console.log("Category updated:", res.data);
-
-        // Show success message (you can use a toast notification or SweetAlert here)
-        Swal.fire({
-          title: "Success!",
-          text: "Category has been updated.",
-          icon: "success",
-          confirmButtonText: "OK",
-        });
-
-        // Refresh the categories list
-        fetchCategories();
-      })
-      .catch((error) => {
-        console.error("Error updating category:", error);
-
-        // Show error message
-        Swal.fire({
-          title: "Error!",
-          text: "Failed to update category. Please try again.",
-          icon: "error",
-          confirmButtonText: "OK",
-        });
-      })
-      .finally(() => {
-        setLoading(false);
-      });
+    updateMutation.mutate(editedData);
   };
+
+  const updateMutation = useMutation({
+    mutationFn: (editedData) => api.put(updateCategory(editedData.id), editedData),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['categories']);
+      Swal.fire({
+        title: "Success!",
+        text: "Category has been updated.",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+    },
+    onError: () => {
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to update category. Please try again.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    },
+  });
 
   const viewOnClick = (row) => {
     console.log("View clicked", row);
     setViewData(row);
     setIsViewModalOpen(true);
   };
-  const handleDelete = (row) => {
+
+  const deleteMutation = useMutation({
+    mutationFn: (id) => api.delete(deleteCategories(id)),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['categories']);
+      Swal.fire("Deleted!", "Your category has been deleted.", "success");
+    },
+    onError: () => {
+      Swal.fire(
+        "Error!",
+        "There was a problem deleting the category.",
+        "error"
+      );
+    },
+  });
+
+const handleDelete = (row) => {
     Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -149,19 +133,7 @@ const Categories = () => {
       confirmButtonText: "Yes, delete it!",
     }).then((result) => {
       if (result.isConfirmed) {
-        api
-          .delete(deleteCategories(row.id))
-          .then((res) => {
-            fetchCategories();
-            Swal.fire("Deleted!", "Your category has been deleted.", "success");
-          })
-          .catch((error) => {
-            Swal.fire(
-              "Error!",
-              "There was a problem deleting the category.",
-              "error"
-            );
-          });
+        deleteMutation.mutate(row.id);
       }
     });
   };
@@ -177,7 +149,7 @@ const Categories = () => {
       <CategoryTable
         createButtonTitle={"ADD CATEGORY"}
         columnsData={categoryHeader}
-        data={categories.data ?? []}
+        data={categories?.data ?? []}
         viewOnClick={viewOnClick}
         showDeleteBtn={true}
         showStatus={false}
@@ -185,12 +157,12 @@ const Categories = () => {
         showAllRows={false}
         showVIewIcon={false}
         deleteOnClick={() => {}}
-        showLoading={loading}
+        showLoading={isLoading || createMutation.isPending || updateMutation.isPending || deleteMutation.isPending}
         onSearch={(val) => {
           handleSearchChange(val);
         }}
         rowsPerPage={row}
-        rowPageCount={total}
+        rowPageCount={categories?.total ?? 0}
         currentPage={page}
         setRowsPerPage={(e) => setRow(e)}
         setChangePage={(e) => setPage(e)}

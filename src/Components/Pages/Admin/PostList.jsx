@@ -26,10 +26,10 @@ const PostList = ({ post,handleDeletePost,deleteView=true }) => {
   };
 
   return (
-    <Card sx={{ borderRadius: 3, margin: 2, boxShadow: 2,width:'500px' }}>
+    <Card sx={{ borderRadius: 3,mb:2, boxShadow: 2,width:'100%' }}>
       <CardHeader
         avatar={
-          <Avatar aria-label="author">{author.first_name.charAt(0)}</Avatar>
+          <Avatar src={author.profile_picture ? `http://127.0.0.1:8000/storage/${author.profile_picture}` : ''} aria-label="author">{author.first_name.charAt(0)}</Avatar>
         }
         action={
 

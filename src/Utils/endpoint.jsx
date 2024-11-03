@@ -64,3 +64,9 @@ export const updatePassword = (userId) => `/admin/users/${userId}/update-passwor
 
 export const deactivateStudent = (userId) => `/admin/students/${userId}`
 
+export const monthlyAttendance =()   =>  `/attendance/analytics/monthly`;
+
+export const dailyAttendance =() => `/attendance/analytics/daily`;
+
+export const weeklyAttendance =() => `/attendance/analytics/weekly`;
+
