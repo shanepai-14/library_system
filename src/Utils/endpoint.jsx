@@ -57,3 +57,10 @@ export const latestPost = () => `/latest-post`;
 export const adminStats = () => `/admin/stats`;
 
 export const studentStats = () => `/student/stats`;
+
+export const viewPassword = (userId) => `/admin/users/${userId}/password`;
+
+export const updatePassword = (userId) => `/admin/users/${userId}/update-password`;
+
+export const deactivateStudent = (userId) => `/admin/students/${userId}`
+

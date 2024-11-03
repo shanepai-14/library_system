@@ -10,6 +10,7 @@ import TableContainer from "@mui/material/TableContainer";
 import TableFooter from "@mui/material/TableFooter";
 import TablePagination from "@mui/material/TablePagination";
 import TableRow from "@mui/material/TableRow";
+import TableSortLabel from "@mui/material/TableSortLabel"; // Added for sorting
 import Paper from "@mui/material/Paper";
 import IconButton from "@mui/material/IconButton";
 import FirstPageIcon from "@mui/icons-material/FirstPage";
@@ -20,6 +21,7 @@ import Button from "@mui/material/Button";
 import RemoveRedEyeIcon from "@mui/icons-material/RemoveRedEye";
 import CircleIcon from "@mui/icons-material/Circle";
 import PersonAddIcon from "@mui/icons-material/PersonAdd";
+import FileDownloadIcon from '@mui/icons-material/FileDownload'; // Added for export
 import { Chip, Typography } from '@mui/material';
 import Barcode from "react-barcode";
 import {
@@ -39,6 +41,7 @@ import DownloadIcon from "@mui/icons-material/Download";
 import dayjs from "dayjs";
 import QRCode from 'react-qr-code';
 import { formatDate } from "../../Utils/helper";
+import * as XLSX from 'xlsx'
 const Search = styled("div")(({ theme }) => ({
   position: "relative",
   borderRadius: theme.shape.borderRadius,
@@ -75,7 +78,74 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
 }));
 
 
+const descendingComparator = (a, b, orderBy) => {
+  // Handle date comparisons
+  if (orderBy.includes('date') || orderBy === 'created_at' || orderBy === 'updated_at') {
+    return new Date(b[orderBy]) - new Date(a[orderBy]);
+  }
+  
+  // Handle string comparisons
+  if (typeof a[orderBy] === 'string') {
+    return b[orderBy].toLowerCase().localeCompare(a[orderBy].toLowerCase());
+  }
+  
+  // Handle numeric comparisons
+  if (b[orderBy] < a[orderBy]) return -1;
+  if (b[orderBy] > a[orderBy]) return 1;
+  return 0;
+};
 
+const getComparator = (order, orderBy) => {
+  return order === 'desc'
+    ? (a, b) => descendingComparator(a, b, orderBy)
+    : (a, b) => -descendingComparator(a, b, orderBy);
+};
+
+const exportToExcel = (data, columnsData) => {
+  // Transform data for export
+  const exportData = data.map(row => {
+    const newRow = {};
+    columnsData.forEach(column => {
+      // Skip profile picture column
+      if (column.accessor === 'profile_picture') {
+        return;
+      }
+
+      // Get the raw value without rendering
+      const value = row[column.accessor];
+
+      // Handle different column types
+      if (column.accessor.includes('date') || column.accessor === 'created_at' || column.accessor === 'updated_at') {
+        // Format dates
+        newRow[column.headerName] = value ? formatDate(value) : '';
+      } else if (column.accessor === 'student_id' || column.accessor === 'id_number') {
+        // For QR code columns, just export the value
+        newRow[column.headerName] = value || '';
+      } else if (column.accessor === 'isbn') {
+        // For barcode columns, just export the value
+        newRow[column.headerName] = value || '';
+      } else if (column.accessor === 'status') {
+        // Export status text
+        newRow[column.headerName] = value || '';
+      } else if (column.accessor === 'check_in' || column.accessor === 'check_out') {
+        // Format time values
+        newRow[column.headerName] = value ? dayjs(value).format('h:mm A') : '';
+      } else {
+        // Default handling for other columns
+        newRow[column.headerName] = value || '';
+      }
+    });
+    return newRow;
+  });
+
+  // Create worksheet
+  const ws = XLSX.utils.json_to_sheet(exportData);
+  const wb = XLSX.utils.book_new();
+  XLSX.utils.book_append_sheet(wb, ws, 'Data');
+  
+  // Generate and download file
+  XLSX.writeFile(wb, 'table-data.xlsx');
+};
 
 const renderCellContent = (accessor, value,row) => {
   switch (accessor) {
@@ -144,9 +214,8 @@ const getStatusColor = (status) => {
   }
 };
 
-
 const TableToolbar = (props) => {
-  const { numSelected } = props;
+  const { numSelected, order, orderBy, onRequestSort } = props;
 
   return (
     <Toolbar
@@ -176,17 +245,29 @@ const TableToolbar = (props) => {
           }}
         />
       </Search>
-      <Grid container justifyContent={"right"}>
-        
-        {props.createButtonTitle && (
-          <Button onClick={props.handleOpenCreateModal} variant="contained">
-            {props.createButtonTitle}
+      <Grid container justifyContent="right" spacing={1}>
+        <Grid item>
+          <Button
+            variant="outlined"
+            startIcon={<FileDownloadIcon />}
+            onClick={props.onExport}
+          >
+            Export Excel
           </Button>
-        )}
+        </Grid>
+        <Grid item>
+          {props.createButtonTitle && (
+            <Button onClick={props.handleOpenCreateModal} variant="contained">
+              {props.createButtonTitle}
+            </Button>
+          )}
+        </Grid>
       </Grid>
     </Toolbar>
   );
 };
+
+
 
 TableToolbar.propTypes = {
   numSelected: PropTypes.number.isRequired,
@@ -195,9 +276,23 @@ TableToolbar.propTypes = {
 export const DataPage = (props) => {
   const [page, setPage] = React.useState(0);
   const [rowsPerPage, setRowsPerPage] = React.useState(props.rowsPerPage ?? 5);
-
+  const [order, setOrder] = React.useState('asc');
+  const [orderBy, setOrderBy] = React.useState('');
   const [width, setWidth] = React.useState(null);
   const paperRef = React.useRef(null);
+
+
+
+  const handleRequestSort = (property) => {
+    const isAsc = orderBy === property && order === 'asc';
+    setOrder(isAsc ? 'desc' : 'asc');
+    setOrderBy(property);
+  };
+
+  const getSortedData = () => {
+    if (!orderBy) return props.data;
+    return [...props.data].sort(getComparator(order, orderBy));
+  };
 
   React.useEffect(() => {
     const handleResize = () => {
@@ -262,15 +357,18 @@ export const DataPage = (props) => {
       }}
     >
       <Divider />
-      <TableToolbar numSelected={0} onSearch={props.onSearch} handleOpenCreateModal={props.handleOpenCreateModal} createButtonTitle={props.createButtonTitle} />
+      <TableToolbar
+        numSelected={0}
+        onSearch={props.onSearch}
+        handleOpenCreateModal={props.handleOpenCreateModal}
+        createButtonTitle={props.createButtonTitle}
+        onExport={() => exportToExcel(props.data, props.columnsData)}
+      />
       <TableContainer sx={{ maxWidth: `${width - 10}px` }}>
         <Table aria-label="custom pagination table">
           <TableHead>
-        
             {!props.showLoading && (
               <TableRow>
-               
-
                 {props.columnsData &&
                   props.columnsData.map((data) => {
                     return (
@@ -278,27 +376,38 @@ export const DataPage = (props) => {
                         key={data.headerName}
                         style={{ fontWeight: "bold" }}
                         align={data.align}
+                        sortDirection={
+                          orderBy === data.accessor ? order : false
+                        }
                       >
-                        {data.headerName}
+                        <TableSortLabel
+                          active={orderBy === data.accessor}
+                          direction={orderBy === data.accessor ? order : "asc"}
+                          onClick={() => handleRequestSort(data.accessor)}
+                        >
+                          {data.headerName}
+                        </TableSortLabel>
                       </TableCell>
                     );
                   })}
-                {(props.showStatus ||
+
+                {(props.showDeleteBtn ||
+                  props.showStatus ||
                   props.showVIewIcon ||
                   props.showEditBtn) && (
                   <TableCell style={{ fontWeight: "bold" }} align="center">
-                     Action
+                    Action
                   </TableCell>
                 )}
               </TableRow>
             )}
           </TableHead>
           <TableBody>
-            {props.data &&
+            {getSortedData() &&
               !props.showLoading &&
               (props.rowsPerPage > 0
-                ? props.data
-                : props.data.slice(
+                ? getSortedData()
+                : getSortedData().slice(
                     page * rowsPerPage,
                     page * rowsPerPage + rowsPerPage
                   )
@@ -313,48 +422,26 @@ export const DataPage = (props) => {
                       },
                   }}
                 >
-                
+                  {props.columnsData.map((access, index) => {
+                    const getCellValue = Object.entries(row).find(
+                      (e) => e[0] === Object.values(access)[2]
+                    )?.[1];
 
-              {props.columnsData.map((access, index) => {
-                const getCellValue = Object.entries(row).find(
-                  (e) => e[0] === Object.values(access)[2]
-                )?.[1];
-                
-                return (
-                  <TableCell
-                    key={index + Math.random()}
-                    align={access.align}
-                    component="th"
-                    scope="row"
-                    onClick={() => props.viewOnClick(row)}
-                  >
-                    {renderCellContent(access.accessor, getCellValue,row)}
-                  </TableCell>
-                );
-              })}
-
-                  {props.showVIewIcon && (
-                    <TableCell>
-                      <Grid
-                        item
-                        xs={
-                          props.showDeleteBtn || props.actions
-                            ? props.actions?.xs ?? 6
-                            : 12
-                        }
+                    return (
+                      <TableCell
+                        key={index + Math.random()}
+                        align={access.align}
+                        component="th"
+                        scope="row"
+                        onClick={() => props.viewOnClick(row)}
                       >
-                        <Button
-                          fullWidth
-                          onClick={() => props.viewOnClick(row)}
-                          variant="text"
-                          size="small"
-                          startIcon={<RemoveRedEyeIcon />}
-                        />
-                      </Grid>
-                    </TableCell>
-                  )}
+                        {renderCellContent(access.accessor, getCellValue, row)}
+                      </TableCell>
+                    );
+                  })}
 
-                  {(props.showDownloadBtn ||
+                  {(props.showVIewIcon ||
+                    props.showDownloadBtn ||
                     props.showEditBtn ||
                     props.showDeleteBtn ||
                     props.showAddUserButton ||
@@ -389,6 +476,16 @@ export const DataPage = (props) => {
                             />
                           </Grid>
                         )}
+
+                        {props.showVIewIcon && (
+                          <Grid item xs={props.actions ? 1 : 5}>
+                            <RemoveRedEyeIcon
+                              color="primary"
+                              onClick={() => props.viewOnClick(row)}
+                            />
+                          </Grid>
+                        )}
+
                         {props.showEditBtn && (
                           <Grid item xs={props.actions ? 1 : 5}>
                             <EditIcon
@@ -477,8 +574,6 @@ export const DataPage = (props) => {
           </TableBody>
           {!props.showLoading && (
             <TableFooter>
-             
-
               {!props.isHidePagination && (
                 <TableRow>
                   <TablePagination

@@ -1,9 +1,9 @@
 import React, {useState , useEffect} from 'react';
 import DataTable from '../../Tables/DynamicTable';
 import  api from '../../../Utils/interceptor';
-import { getUsers, deleteBooks} from '../../../Utils/endpoint';
+import { getUsers, deactivateStudent} from '../../../Utils/endpoint';
+import UserPasswordRecovery from '../../Modals/UserPasswordRecovery';
 import Swal from 'sweetalert2';
-import ViewStudentModal from '../../Modals/ViewStudentModal';
 
 
 const Students = () => {
@@ -17,6 +17,9 @@ const Students = () => {
     const [viewData, setViewData] = useState('');
     
 
+    useEffect(() => {
+     console.log(viewData.id);
+  }, [viewData]);
 
     useEffect(() => {
         fetchTableData();
@@ -51,44 +54,40 @@ const Students = () => {
         setPage(1); // Reset to first page on new search
       };
 
-      const handleOpenCreateModal = () => {
-        setIsCreateModalOpen(true);
-      };
-    
-
-
-
-   
-
-
       const handleDelete = (row) => {
         Swal.fire({
-          title: 'Are you sure?',
-          text: "You won't be able to revert this!",
-          icon: 'warning',
-          showCancelButton: true,
-          confirmButtonColor: '#3085d6',
-          cancelButtonColor: '#d33',
-          confirmButtonText: 'Yes, delete it!'
+            title: 'Are you sure?',
+            text: "The student will be deactivated",
+            icon: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#3085d6',
+            cancelButtonColor: '#d33',
+            confirmButtonText: 'Yes, delete it!'
         }).then((result) => {
-          if (result.isConfirmed) {
-            api.delete(deleteBooks(row.id)).then((res) => {
-              fetchTableData();
-              Swal.fire(
-                'Deleted!',
-                'An Book has been deleted.',
-                'success'
-              );
-            }).catch((error) => {
-              Swal.fire(
-                'Error!',
-                'There was a problem deleting the an Author.',
-                'error'
-              );
-            });
-          }
+            if (result.isConfirmed) {
+                api.delete(deactivateStudent(row.id))
+                    .then((res) => {
+                        fetchTableData();
+                        Swal.fire({
+                            title: 'Deleted!',
+                            text: 'The student has been deactivated.',
+                            icon: 'success',
+                            timer: 1500
+                        });
+                    })
+                    .catch((error) => {
+                        console.error('Delete error:', error);
+                        Swal.fire({
+                            title: 'Error!',
+                            text: error.response?.data?.message || 'There was a problem deleting the student.',
+                            icon: 'error'
+                        });
+                    });
+            }
         });
-      };
+    };
+
+    
 
       const viewOnClick = (row) => {
 
@@ -123,15 +122,17 @@ const Students = () => {
            setRowsPerPage={(e) => setRow(e)}
            setChangePage={(e) => setPage(e)}
            marginTop={"2px"}
-           handleOpenCreateModal={handleOpenCreateModal}
+           setDeleteOnClick={(row) => {handleDelete(row)}}
+           showDeleteBtn={true}
+
          />
 
     
 
-        <ViewStudentModal
+        <UserPasswordRecovery
         open={isViewModalOpen}
         handleClose={() => setIsViewModalOpen(false)}
-        data={viewData}
+        userId={viewData.id}
       />
         </>
     )

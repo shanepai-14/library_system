@@ -130,8 +130,22 @@ const StudentAccount = () => {
     const imageSrc = webcamRef.current?.getScreenshot();
     if (imageSrc) {
       setNewProfilePic(imageSrc);
-      console.log('profile_picture', imageSrc)
-      handleImageChange('profile_picture', imageSrc);  // Pass both field and value directly
+      
+      // Convert base64 to file
+      const byteString = atob(imageSrc.split(',')[1]);
+      const mimeString = imageSrc.split(',')[0].split(':')[1].split(';')[0];
+      const ab = new ArrayBuffer(byteString.length);
+      const ia = new Uint8Array(ab);
+      
+      for (let i = 0; i < byteString.length; i++) {
+        ia[i] = byteString.charCodeAt(i);
+      }
+      
+      const blob = new Blob([ab], { type: mimeString });
+      const file = new File([blob], "webcam-capture.jpg", { type: "image/jpeg" });
+      
+      console.log('profile_picture file:', file);
+      handleImageChange('profile_picture', file);
       setShowCamera(false);
     }
   }, [webcamRef]);
@@ -293,7 +307,7 @@ const StudentAccount = () => {
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
-                  Personal Information {userData.profile_picture}
+                  Personal Information
                 </Typography>
                 <Stack spacing={3}>
                   <TextField

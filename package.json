@@ -37,7 +37,8 @@
     "react-zxing": "^2.0.2",
     "recharts": "^2.13.2",
     "styled-components": "^6.1.12",
-    "sweetalert2": "^11.12.3"
+    "sweetalert2": "^11.12.3",
+    "xlsx": "^0.18.5"
   },
   "devDependencies": {
     "@types/react": "^18.3.3",
