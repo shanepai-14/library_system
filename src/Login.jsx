@@ -13,15 +13,31 @@ import LoadingButton from '@mui/lab/LoadingButton';
 import LibraryHoursCard from './Components/Tables/LibraryHoursCard.jsx';
 import { createTheme, ThemeProvider } from '@mui/material/styles';
 import LocalLibraryIcon from "@mui/icons-material/LocalLibrary";
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
 import LoginIcon from '@mui/icons-material/Login';
 import  api  from './Utils/interceptor.jsx'
 import { login, latestPost } from './Utils/endpoint';
 import { useAuth } from './Components/Auth/AuthContext'; 
 import { useNavigate } from 'react-router-dom';
 import AnnouncementCard from './Components/Layout/AnnouncementCard.jsx';
+import { styled } from '@mui/material/styles';
 
 // TODO remove, this demo shouldn't need to reset the theme.
-
+const StyledLink = styled(Link)(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  textDecoration: 'none',
+  color: theme.palette.primary.main,
+  padding: '8px 16px',
+  borderRadius: '20px',
+  transition: 'all 0.3s ease',
+  backgroundColor: theme.palette.primary.light + '20',
+  marginLeft: theme.spacing(1),
+  '&:hover': {
+    backgroundColor: theme.palette.primary.light + '40',
+    transform: 'translateY(-2px)',
+  }
+}));
 
 
 const defaultTheme = createTheme();
@@ -256,10 +272,37 @@ const handleChangeEmail = (event) => {
                   </Link>
                 </Grid>
                 <Grid item>
-                  <Link to='/signup' variant="body2">
-                    {"Don't have an account? Sign Up"}
-                  </Link>
-                </Grid>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1,
+                        p: 0,
+                        borderRadius: 2,
+                      }}
+                    >
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: 'text.secondary',
+                          fontWeight: 500
+                        }}
+                      >
+                        Don't have an account?
+                      </Typography>
+                      <StyledLink to='/signup'>
+                        <PersonAddIcon sx={{ fontSize: 16, mr: 0.5 }} />
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontWeight: 600
+                          }}
+                        >
+                          Sign Up
+                        </Typography>
+                      </StyledLink>
+                    </Box>
+                  </Grid>
               </Grid>
               <LibraryHoursCard/>
             </Box>

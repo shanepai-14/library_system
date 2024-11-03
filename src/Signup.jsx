@@ -2,8 +2,6 @@ import React, { useState, useRef, useCallback } from "react";
 import Avatar from "@mui/material/Avatar";
 import CssBaseline from "@mui/material/CssBaseline";
 import TextField from "@mui/material/TextField";
-import FormControlLabel from "@mui/material/FormControlLabel";
-import Checkbox from "@mui/material/Checkbox";
 import { Link } from "react-router-dom";
 import Grid from "@mui/material/Grid";
 import Box from "@mui/material/Box";
@@ -14,7 +12,7 @@ import Select from "@mui/material/Select";
 import MenuItem from "@mui/material/MenuItem";
 import InputLabel from "@mui/material/InputLabel";
 import FormControl from "@mui/material/FormControl";
-import Copyright from "./Components/Layout/Copyright";
+import Paper from "@mui/material/Paper";
 import LocalLibraryIcon from "@mui/icons-material/LocalLibrary";
 import LoadingButton from "@mui/lab/LoadingButton";
 import api from "./Utils/interceptor";
@@ -22,6 +20,7 @@ import { useAuth } from "./Components/Auth/AuthContext";
 import { useNavigate } from "react-router-dom";
 import Swal from "sweetalert2";
 import Webcam from "react-webcam";
+import { styled } from '@mui/material/styles';
 import {
   IconButton,
   Dialog,
@@ -39,6 +38,23 @@ import {
   Close as CloseIcon,
   Cameraswitch as CameraSwitchIcon,
 } from "@mui/icons-material";
+import PersonAddIcon from '@mui/icons-material/PersonAdd';
+
+const StyledLink = styled(Link)(({ theme }) => ({
+  display: 'flex',
+  alignItems: 'center',
+  textDecoration: 'none',
+  color: theme.palette.primary.main,
+  padding: '8px 16px',
+  borderRadius: '20px',
+  transition: 'all 0.3s ease',
+  backgroundColor: theme.palette.primary.light + '20',
+  marginLeft: theme.spacing(1),
+  '&:hover': {
+    backgroundColor: theme.palette.primary.light + '40',
+    transform: 'translateY(-2px)',
+  }
+}));
 
 const PhotoUpload = ({ onPhotoChange, error }) => {
   const [open, setOpen] = useState(false);
@@ -289,6 +305,37 @@ const PhotoUpload = ({ onPhotoChange, error }) => {
     </Box>
   );
 };
+
+const BackgroundContainer = styled(Box)({
+  minHeight: '100vh',
+  display: 'flex',
+  alignItems: 'center',
+  position: 'relative',
+  '&::before': {
+    content: '""',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundImage: 'url(/library.jpg)',
+    backgroundSize: 'cover',
+    backgroundPosition: 'center',
+    backgroundRepeat: 'no-repeat',
+    opacity: 0.7,
+    zIndex: -2
+  },
+  '&::after': {
+    content: '""',
+    position: 'absolute',
+    top: 0,
+    left: 0,
+    right: 0,
+    bottom: 0,
+    backgroundColor: 'rgba(0, 0, 0, 0.5)', // Dark overlay
+    zIndex: -1
+  }
+});
 export default function SignUp() {
   const { auth } = useAuth();
   const navigate = useNavigate();
@@ -418,41 +465,22 @@ export default function SignUp() {
     }
   };
   return (
-    <div
-      style={{
-        width: "100%",
-        height: "auto",
-        margin: "auto",
-        position: "relative",
-      }}
-    >
-      <div
-        style={{
-          position: "fixed",
-          backgroundImage: 'url("/dvc.jpg")',
-          backgroundSize: "cover",
-          opacity: 0.4,
-          top: 0,
-          left: 0,
-          right: 0,
-          bottom: 0,
-          zIndex: -1,
-        }}
-      />
+    <BackgroundContainer>
+    
 
-      <Container
-        component="main"
-        maxWidth="md"
-        sx={{
-          zIndex: 999,
-          backgroundColor: "white",
-          marginTop: 6,
-          boxShadow: 2,
-          borderRadius: 1,
-          paddingBottom: 4,
-          paddingTop: 4,
-        }}
-      >
+    <Container maxWidth="md">
+    <Paper
+          elevation={6} // Increased elevation for better contrast with background
+          sx={{
+            p: 4,
+            textAlign: 'center',
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            backgroundColor: 'rgba(255, 255, 255, 0.95)', // Slightly transparent white
+            backdropFilter: 'blur(10px)', // Blur effect for modern look
+          }}
+        >
         <CssBaseline />
         <Box
           sx={{
@@ -462,6 +490,7 @@ export default function SignUp() {
             opacity: 1,
           }}
         >
+            
           <Avatar
             src="/dvclogo.png"
             sx={{ m: 1, height: 70, width: 70 }}
@@ -692,16 +721,44 @@ export default function SignUp() {
               <span>SIGN UP</span>
             </LoadingButton>
             <Grid container justifyContent="flex-end">
-              <Grid item>
-                <Link to="/" variant="body2">
-                  Already have an account? Sign in
-                </Link>
-              </Grid>
+               <Grid item>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        alignItems: 'center',
+                        gap: 1,
+                        p: 0,
+                        borderRadius: 2,
+                      }}
+                    >
+                      <Typography
+                        variant="body2"
+                        sx={{
+                          color: 'text.secondary',
+                          fontWeight: 500
+                        }}
+                      >
+                        Already have an account?
+                      </Typography>
+                      <StyledLink to='/'>
+                        <PersonAddIcon sx={{ fontSize: 16, mr: 0.5 }} />
+                        <Typography
+                          variant="body2"
+                          sx={{
+                            fontWeight: 600
+                          }}
+                        >
+                         Sign in
+                        </Typography>
+                      </StyledLink>
+                    </Box>
+                  </Grid>
+
             </Grid>
           </Box>
         </Box>
+        </Paper>
       </Container>
-      <Copyright sx={{ mt: 5 }} />
-    </div>
+      </BackgroundContainer>
   );
 }
