@@ -478,6 +478,7 @@ const StudentAccount = () => {
             <Box sx={{ position: "relative", width: "100%", height: 400 }}>
               <Webcam
                 ref={webcamRef}
+                audio={false}
                 screenshotFormat="image/jpeg"
                 style={{ width: "100%", height: "100%", objectFit: "cover" }}
               />

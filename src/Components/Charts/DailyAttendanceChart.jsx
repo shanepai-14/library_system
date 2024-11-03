@@ -54,13 +54,7 @@ const DailyAttendanceChart = () => {
     return () => clearInterval(interval);
   }, []);
 
-  if (loading) {
-    return (
-      <Box display="flex" justifyContent="center" alignItems="center" minHeight="400px">
-        <CircularProgress />
-      </Box>
-    );
-  }
+
 
   return (
     <Card>
@@ -79,9 +73,14 @@ const DailyAttendanceChart = () => {
           </MuiTooltip>
        </Box>
         <Box sx={{ width: '100%', height: 407 }} ref={contentRef}>
-          <ResponsiveContainer>
+          {loading ? (
+            <Box display="flex" justifyContent="center" alignItems="center" height={400}>
+              <CircularProgress />
+            </Box>
+          ) : (
+            <ResponsiveContainer>
             <BarChart
-              data={[data]} // Wrap in array since it's single day data
+              data={[data]} 
               margin={{
                 top: 20,
                 right: 30,
@@ -104,6 +103,7 @@ const DailyAttendanceChart = () => {
               ))}
             </BarChart>
           </ResponsiveContainer>
+          )}
         </Box>
       </CardContent>
     </Card>
