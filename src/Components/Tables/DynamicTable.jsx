@@ -493,7 +493,7 @@ export const DataPage = (props) => {
                           <Grid item xs={props.actions ? 1 : 5}>
                             <RemoveRedEyeIcon
                               color="primary"
-                              onClick={() => props.viewOnClick(row)}
+                              onClick={() => props.viewEyeOnClick(row)}
                             />
                           </Grid>
                         )}

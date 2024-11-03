@@ -8,6 +8,7 @@ import CreateBook from '../../Modals/CreateBookModal';
 import { tableHeader } from '../../../Utils/helper';
 import Swal from 'sweetalert2';
 import ViewModal from '../../Modals/ViewModal';
+import BookDetailsModal from '../../Modals/BookDetailsModal';
 
 const Books = () => {
     const queryClient = useQueryClient();
@@ -19,7 +20,8 @@ const Books = () => {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [viewData, setViewData] = useState({ id: 0 });
-    
+    const [selectedBook, setSelectedBook] = useState(null);
+    const [openModal, setOpenModal] = useState(false);
 
     // Main query for fetching books
     const { 
@@ -196,6 +198,11 @@ const Books = () => {
         setIsViewModalOpen(true);
     };
 
+
+    const viewEyeOnClick = (row) => {
+      setSelectedBook(row);
+      setOpenModal(true);
+    };
     // Error handling for main query
     if (isError) {
         Swal.fire({
@@ -226,8 +233,9 @@ const Books = () => {
                 showDeleteBtn={true}
                 showStatus={false}
                 showEditBtn={true}
+                showVIewIcon={true}
                 showAllRows={false}
-                showVIewIcon={false}
+                viewEyeOnClick={viewEyeOnClick}
                 deleteOnClick={() => { }}
                 showLoading={isLoading || createMutation.isPending || updateMutation.isPending || deleteMutation.isPending}
                 onSearch={handleSearchChange}
@@ -272,6 +280,12 @@ const Books = () => {
                 viewData={viewData}
                 url={activeBookLoans}
                 tableHeader={BookLoanHeader}
+            />
+
+          <BookDetailsModal
+              open={openModal}
+              onClose={() => setOpenModal(false)}
+              book={selectedBook}
             />
         </>
     );

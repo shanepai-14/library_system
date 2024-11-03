@@ -8,6 +8,7 @@ import AdminDashboard from "./Components/Pages/Admin/Dashboard.jsx";
 import Categories from "./Components/Pages/Admin/Categories.jsx";
 import Authors from "./Components/Pages/Admin/Author.jsx";
 import Books from "./Components/Pages/Admin/Books.jsx";
+import StudentBooks from "./Components/Pages/Student/Books.jsx";
 import Subjects from "./Components/Pages/Admin/Subject.jsx";
 import SignUp from "./Signup.jsx";
 import ProtectedRoute from "./Components/Auth/ProtectedRoute.jsx";
@@ -115,13 +116,17 @@ const router = createBrowserRouter([
             element: <StudentDashboard />,
           },
           {
+            path: "books",
+            element: <StudentBooks />,
+          },
+          {
             path: "issued-books",
             element: <IssuedBooks />,
           },
           {
             path: "account",
             element: <Account />,
-          },
+          }, 
         ],
       },
       
