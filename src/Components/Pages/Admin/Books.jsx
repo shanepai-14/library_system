@@ -4,7 +4,7 @@ import DataTable from '../../Tables/DynamicTable';
 import api from '../../../Utils/interceptor';
 import { getBooks, deleteBooks, updateBooks, activeBookLoans } from '../../../Utils/endpoint';
 import EditModal from '../../Modals/EditModal';
-import CreateModal from '../../Modals/CreateModal';
+import CreateBook from '../../Modals/CreateBookModal';
 import { tableHeader } from '../../../Utils/helper';
 import Swal from 'sweetalert2';
 import ViewModal from '../../Modals/ViewModal';
@@ -19,6 +19,7 @@ const Books = () => {
     const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
     const [isViewModalOpen, setIsViewModalOpen] = useState(false);
     const [viewData, setViewData] = useState({ id: 0 });
+    
 
     // Main query for fetching books
     const { 
@@ -38,6 +39,7 @@ const Books = () => {
                 ...item,
                 author: item.author ? item.author.name : '',
                 category: item.category ? item.category.name : '',
+                shelve_no: item.category ? item.category.shelve_no : '',
             }));
 
             return {
@@ -49,43 +51,49 @@ const Books = () => {
 
     // Create mutation
     const createMutation = useMutation({
-        mutationFn: async (newData) => {
-            const formData = new FormData();
-            
-            // Append all fields except image
-            Object.keys(newData).forEach(key => {
-                if (key !== 'image') {
-                    formData.append(key, newData[key]);
-                }
+      mutationFn: async (newData) => {
+        const formData = new FormData();
+        
+        // Handle all fields including subject_ids array
+        Object.keys(newData).forEach(key => {
+          if (key === 'subject_ids') {
+            // Handle array of subject IDs
+            newData[key].forEach((subjectId, index) => {
+              formData.append(`subject_ids[${index}]`, subjectId);
             });
-            
-            // Append image if exists
-            if (newData.image) {
-                formData.append('image', newData.image, newData.image.name);
+          } else if (key === 'image') {
+            // Handle image file
+            if (newData.image instanceof File) {
+              formData.append('image', newData.image);
             }
-
-            return api.post(getBooks(), formData, {
-                headers: { 'Content-Type': 'multipart/form-data' }
-            });
-        },
-        onSuccess: () => {
-            queryClient.invalidateQueries(['books']);
-            setIsCreateModalOpen(false);
-            Swal.fire({
-                title: 'Success!',
-                text: 'New Book has been created.',
-                icon: 'success',
-                confirmButtonText: 'OK'
-            });
-        },
-        onError: (error) => {
-            Swal.fire({
-                title: 'Error!',
-                text: error.message || 'Failed to create book. Please try again.',
-                icon: 'error',
-                confirmButtonText: 'OK'
-            });
-        },
+          } else {
+            // Handle all other fields
+            formData.append(key, newData[key]);
+          }
+        });
+    
+        return api.post(getBooks(), formData, {
+          headers: { 'Content-Type': 'multipart/form-data' }
+        });
+      },
+      onSuccess: () => {
+        queryClient.invalidateQueries(['books']);
+        setIsCreateModalOpen(false);
+        Swal.fire({
+          title: 'Success!',
+          text: 'New Book has been created.',
+          icon: 'success',
+          confirmButtonText: 'OK'
+        });
+      },
+      onError: (error) => {
+        Swal.fire({
+          title: 'Error!',
+          text: error.message || 'Failed to create book. Please try again.',
+          icon: 'error',
+          confirmButtonText: 'OK'
+        });
+      },
     });
 
     // Update mutation
@@ -198,7 +206,7 @@ const Books = () => {
         });
     }
 
-    const createableColumns = ["title", "book_price", "total_copies", "isbn", "publication_year", "author_id", "category_id", "image"];
+   
     const editableColumns = ["title", "book_price", "total_copies", "isbn", "publication_year", "author_id", "category_id", "image"];
     const BookLoanHeader = [
         { headerName: "Borrower", align: "left", accessor: "user" },
@@ -251,12 +259,10 @@ const Books = () => {
                 />
             )}
 
-            <CreateModal
-                title="Add a new Book"
-                open={isCreateModalOpen}
-                handleClose={() => setIsCreateModalOpen(false)}
-                handleCreate={handleCreate}
-                createableColumns={createableColumns}
+            <CreateBook
+              open={isCreateModalOpen}
+              handleClose={() => setIsCreateModalOpen(false)}
+              handleCreate={handleCreate}
             />
 
             <ViewModal

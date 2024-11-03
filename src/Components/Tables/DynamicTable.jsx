@@ -156,6 +156,8 @@ const renderCellContent = (accessor, value,row) => {
         <Avatar
         alt={row?.student_name || "Student"} sx={{height:70 ,width:70}}  src={`http://127.0.0.1:8000/storage/${value}`} />
       );
+    case "year_level": 
+         return <Typography>{getYearLevelDescription(value)}</Typography>;
     case "student_id":   
     case "id_number":
       return value ? (
@@ -194,6 +196,16 @@ const renderCellContent = (accessor, value,row) => {
       return value;
   }
 };
+
+function getYearLevelDescription(year_level) {
+  if (year_level === 11) return "Grade 11";
+  if (year_level === 12) return "Grade 12";
+
+  // Suffixes for 1st, 2nd, 3rd, and default "th" for others
+  const suffixes = ["th", "st", "nd", "rd"];
+  const suffix = suffixes[year_level] || "th";
+  return `${year_level}${suffix} Year`;
+}
 
 const getStatusColor = (status) => {
   switch (status.toLowerCase()) {

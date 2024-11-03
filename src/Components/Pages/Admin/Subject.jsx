@@ -1,20 +1,18 @@
-import React, { useState, useEffect } from "react";
-import CategoryTable from "../../Tables/DynamicTable";
+import React, { useState } from "react";
+import DynamicTable from "../../Tables/DynamicTable";
 import api from "../../../Utils/interceptor";
 import {
-  getCategories,
-  deleteCategories,
-  updateCategory,
-  booksCategory,
+  getSubjects,
+  deleteSubjects,
+  updateSubject,
 } from "../../../Utils/endpoint";
 import EditModal from "../../Modals/EditModal";
-import CreateCategoryModal from "../../Modals/CreateModal";
-import Swal from "sweetalert2";
-import ViewModal from "../../Modals/ViewModal";
-import { tableHeader } from "../../../Utils/helper";
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import CreateSubjectModal from "../../Modals/CreateModal";
 
-const Categories = () => {
+import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
+import Swal from "sweetalert2";
+
+const Subjects = () => {
   const queryClient = useQueryClient();
   const [page, setPage] = useState(1);
   const [row, setRow] = useState(5);
@@ -22,24 +20,25 @@ const Categories = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedRow, setSelectedRow] = useState(null);
   const [isCreateModalOpen, setIsCreateModalOpen] = useState(false);
-  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
-  const [viewData, setViewData] = useState({ id: 0 });
 
-  const { data: categories, isLoading } = useQuery({
-    queryKey: ['categories', page, row, search],
-    queryFn: () => api.get(getCategories(), { 
+  // Fetch subjects data
+  const { data: subjects, isLoading } = useQuery({
+    queryKey: ['subjects', page, row, search],
+    queryFn: () => api.get(getSubjects(), { 
       params: { page, row, search } 
     }).then(res => res.data),
-  })
+  });
 
   const handleSearchChange = (val) => {
     setSearch(val);
-    setPage(1); // Reset to first page on new search
+    setPage(1);
   };
+
   const handleClose = () => {
     setIsModalOpen(false);
     setSelectedRow(null);
   };
+
   const handleOpenCreateModal = () => {
     setIsCreateModalOpen(true);
   };
@@ -47,21 +46,21 @@ const Categories = () => {
   const handleCloseCreateModal = () => {
     setIsCreateModalOpen(false);
   };
+
   const handleEdit = (row) => {
     setSelectedRow(row);
     setIsModalOpen(true);
   };
-  const handleCreate = (newCategoryData) => {
-    createMutation.mutate(newCategoryData);
-  };
 
+  // Create mutation
   const createMutation = useMutation({
-    mutationFn: (newCategoryData) => api.post(getCategories(), newCategoryData),
+    mutationFn: (newSubjectData) => api.post(getSubjects(), newSubjectData),
     onSuccess: () => {
-      queryClient.invalidateQueries(['categories']);
+      queryClient.invalidateQueries(['subjects']);
+      handleCloseCreateModal();
       Swal.fire({
         title: "Success!",
-        text: "New category has been created.",
+        text: "New subject has been created.",
         icon: "success",
         confirmButtonText: "OK",
       });
@@ -69,7 +68,34 @@ const Categories = () => {
     onError: () => {
       Swal.fire({
         title: "Error!",
-        text: "Failed to create category. Please try again.",
+        text: "Failed to create subject. Please try again.",
+        icon: "error",
+        confirmButtonText: "OK",
+      });
+    },
+  });
+
+  const handleCreate = (newSubjectData) => {
+    createMutation.mutate(newSubjectData);
+  };
+
+  // Update mutation
+  const updateMutation = useMutation({
+    mutationFn: (editedData) => api.put(updateSubject(editedData.id), editedData),
+    onSuccess: () => {
+      queryClient.invalidateQueries(['subjects']);
+      handleClose();
+      Swal.fire({
+        title: "Success!",
+        text: "Subject has been updated.",
+        icon: "success",
+        confirmButtonText: "OK",
+      });
+    },
+    onError: () => {
+      Swal.fire({
+        title: "Error!",
+        text: "Failed to update subject. Please try again.",
         icon: "error",
         confirmButtonText: "OK",
       });
@@ -80,49 +106,23 @@ const Categories = () => {
     updateMutation.mutate(editedData);
   };
 
-  const updateMutation = useMutation({
-    mutationFn: (editedData) => api.put(updateCategory(editedData.id), editedData),
-    onSuccess: () => {
-      queryClient.invalidateQueries(['categories']);
-      Swal.fire({
-        title: "Success!",
-        text: "Category has been updated.",
-        icon: "success",
-        confirmButtonText: "OK",
-      });
-    },
-    onError: () => {
-      Swal.fire({
-        title: "Error!",
-        text: "Failed to update category. Please try again.",
-        icon: "error",
-        confirmButtonText: "OK",
-      });
-    },
-  });
-
-  const viewOnClick = (row) => {
-    console.log("View clicked", row);
-    setViewData(row);
-    setIsViewModalOpen(true);
-  };
-
+  // Delete mutation
   const deleteMutation = useMutation({
-    mutationFn: (id) => api.delete(deleteCategories(id)),
+    mutationFn: (id) => api.delete(deleteSubjects(id)),
     onSuccess: () => {
-      queryClient.invalidateQueries(['categories']);
-      Swal.fire("Deleted!", "Your category has been deleted.", "success");
+      queryClient.invalidateQueries(['subjects']);
+      Swal.fire("Deleted!", "Subject has been deleted.", "success");
     },
     onError: () => {
       Swal.fire(
         "Error!",
-        "There was a problem deleting the category.",
+        "There was a problem deleting the subject.",
         "error"
       );
     },
   });
 
-const handleDelete = (row) => {
+  const handleDelete = (row) => {
     Swal.fire({
       title: "Are you sure?",
       text: "You won't be able to revert this!",
@@ -138,21 +138,22 @@ const handleDelete = (row) => {
     });
   };
 
-  const createableColumns = ["name","shelve_no", "description", "status"];
-  const editableColumns = ["name", "shelve_no","description", "status"];
-  const categoryHeader = [
+  const createableColumns = ["code", "name", "description", "year_level", "department", "semester"];
+  const editableColumns = ["code", "name", "description", "year_level", "department", "semester"];
+  const subjectHeader = [
+    { headerName: "Code", align: "left", accessor: "code" },
     { headerName: "Name", align: "left", accessor: "name" },
-    { headerName: "Shelve No.", align: "left", accessor: "shelve_no" },
-    { headerName: "Status", align: "left", accessor: "status" },
-
+    { headerName: "Year Level", align: "left", accessor: "year_level" },
+    { headerName: "Department", align: "left", accessor: "department" },
+    { headerName: "Semester", align: "left", accessor: "semester" },
   ];
+
   return (
     <>
-      <CategoryTable
-        createButtonTitle={"ADD CATEGORY"}
-        columnsData={categoryHeader}
-        data={categories?.data ?? []}
-        viewOnClick={viewOnClick}
+      <DynamicTable
+        createButtonTitle={"ADD SUBJECT"}
+        columnsData={subjectHeader}
+        data={subjects?.data ?? []}
         showDeleteBtn={true}
         showStatus={false}
         showEditBtn={true}
@@ -160,26 +161,21 @@ const handleDelete = (row) => {
         showVIewIcon={false}
         deleteOnClick={() => {}}
         showLoading={isLoading || createMutation.isPending || updateMutation.isPending || deleteMutation.isPending}
-        onSearch={(val) => {
-          handleSearchChange(val);
-        }}
+        onSearch={handleSearchChange}
         rowsPerPage={row}
-        rowPageCount={categories?.total ?? 0}
+        rowPageCount={subjects?.total ?? 0}
         currentPage={page}
         setRowsPerPage={(e) => setRow(e)}
         setChangePage={(e) => setPage(e)}
         marginTop={"2px"}
-        setDeleteOnClick={(row) => {
-          handleDelete(row);
-        }}
-        setEditOnClick={(row) => {
-          handleEdit(row);
-        }}
+        setDeleteOnClick={handleDelete}
+        setEditOnClick={handleEdit}
         handleOpenCreateModal={handleOpenCreateModal}
       />
+
       {selectedRow && (
         <EditModal
-          title="Edit Category"
+          title="Edit Subject"
           editableColumns={editableColumns}
           open={isModalOpen}
           handleClose={handleClose}
@@ -188,23 +184,17 @@ const handleDelete = (row) => {
         />
       )}
 
-      <CreateCategoryModal
-        title="Create Category"
+      <CreateSubjectModal
+        title="Create Subject"
         open={isCreateModalOpen}
         handleClose={handleCloseCreateModal}
         handleCreate={handleCreate}
         createableColumns={createableColumns}
       />
-      <ViewModal
-        title={"Category"}
-        open={isViewModalOpen}
-        handleClose={() => setIsViewModalOpen(false)}
-        viewData={viewData}
-        url={booksCategory}
-        tableHeader={tableHeader}
-      />
+
+  
     </>
   );
 };
 
-export default Categories;
+export default Subjects;

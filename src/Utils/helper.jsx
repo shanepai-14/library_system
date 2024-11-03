@@ -42,6 +42,7 @@ export const formatDate = (dateString,includeWeekday = true) => {
   { headerName: "Title", align: "left", accessor: "title" },
   { headerName: "ISBN", align: "left", accessor: "isbn" },
   { headerName: "Category", align: "left", accessor: "category" },
+  { headerName: "Shelve No.", align: "left", accessor: "shelve_no" },
   { headerName: "Author", align: "left", accessor: "author" },
   { headerName: "Published year", align: "left", accessor: "publication_year" },
   { headerName: "Price", align: "left", accessor: "book_price" },

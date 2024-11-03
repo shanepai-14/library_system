@@ -7,17 +7,20 @@ export const login = () => `/login`;
 export const register = () => `/register`;
 
 export const allCategories = () => `/category/all`;
+
 export const getCategories = () => `/categories`;
+
 export const deleteCategories = (id) => `/categories/${id}`;
+
 export const updateCategory = (id) => `/categories/${id}`;
 
 export const allAuthors = () => `/author/all`
+
 export const getAuthors = () => '/authors'
 
 export const deleteAuthors = (id) => `/authors/${id}`
 
 export const updateAuthors = (id) => `/authors/${id}`
-
 
 export const getBooks= () => '/books'
 
@@ -28,6 +31,7 @@ export const updateBooks= (id) => `/books/${id}`
 export const showBook= (id) => `/books/${id}`
 
 export const booksCategory = (id) => `/books/category/${id}`
+
 export const booksAuthor = (id) => `/books/author/${id}`
 
 export const getBooksLoans= () => `/book-loans`
@@ -70,3 +74,18 @@ export const dailyAttendance =() => `/attendance/analytics/daily`;
 
 export const weeklyAttendance =() => `/attendance/analytics/weekly`;
 
+export const getSubjects = () => '/subjects';
+
+export const getSubject = (id) => `/subjects/${id}`;
+
+export const createSubject = () => '/subjects';
+
+export const updateSubject = (id) => `/subjects/${id}`;
+
+export const deleteSubjects = (id) => `/subjects/${id}`;
+
+export const booksSubject = (id) => `/subjects/${id}/books`;
+
+export const allSubjects = (id) => `/all-subjects`;
+
+export const getRecommendedBooks = (userId) => `recommended-books/${userId}`;

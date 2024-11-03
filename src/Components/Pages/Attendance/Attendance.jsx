@@ -15,6 +15,7 @@ import ReasonCards from "./ReasonCards";
 import Scanner from "./Scanner";
 import LocalLibraryIcon from "@mui/icons-material/LocalLibrary";
 import { styled } from '@mui/material/styles';
+import AttendanceSuccessDialog from "./AttendanceSuccessDialog";
 
 
 const StyledContainer = styled(Container)(({ theme }) => ({
@@ -117,6 +118,8 @@ const AttendanceSystem = () => {
   const [studentName, setStudentName] = useState("");
   const [loading, setLoading] = useState(false);
   const [progress, setProgress] = useState(0);
+  const [openSuccessDialog, setOpenSuccessDialog] = useState(false);
+  const [attendanceData, setAttendanceData] = useState(null);
 
 
   useEffect(() => {
@@ -210,17 +213,8 @@ const AttendanceSystem = () => {
       })
       .then((res) => {
         setProgress(100);
-        const message = res.data.message;
-        const Time = new Date(
-          res.data.attendance.check_in
-        ).toLocaleTimeString();
-        Swal.fire({
-          title: message,
-          html: `<h1>${Time}</strong>.</h1>`,
-          icon: "success",
-          timer: 2000
-        });
-
+        setAttendanceData(res.data);
+        setOpenSuccessDialog(true);
         resetStates();
       })
 
@@ -367,6 +361,11 @@ const AttendanceSystem = () => {
           {currentTime}
         </DigitalClock>
       </Box>
+      <AttendanceSuccessDialog
+        open={openSuccessDialog}
+        onClose={() => setOpenSuccessDialog(false)}
+        data={attendanceData}
+      />
     </StyledContainer>
   );
 };

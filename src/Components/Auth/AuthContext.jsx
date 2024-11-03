@@ -2,6 +2,7 @@ import React, { createContext, useContext, useState, useEffect } from 'react';
 import api from '../../Utils/interceptor';
 import {showUser} from '../../Utils/endpoint'
 import Swal from 'sweetalert2';
+import WelcomeDialog from './WelcomeDialog';
 export const isAuthenticated = () => {
   const token = localStorage.getItem('authToken');
   return token ? true : false;
@@ -16,6 +17,7 @@ export const useAuth = () => {
 export const AuthProvider = ({ children }) => {
   const [userData, setUserData] = useState(null);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
+  const [showWelcomeDialog, setShowWelcomeDialog] = useState(false);
   useEffect(() => {
     const storedUserData = localStorage.getItem('userData');
     if (storedUserData) {
@@ -29,6 +31,10 @@ export const AuthProvider = ({ children }) => {
     setIsAuthenticated(true);
          localStorage.setItem('authToken', response.data.token);
         localStorage.setItem('userData', JSON.stringify(response.data.user));
+
+        if (response.data.user.role === 'student') {
+          setShowWelcomeDialog(true);
+        }
 
 
   };
@@ -139,5 +145,14 @@ export const AuthProvider = ({ children }) => {
     setUserData,
   };
 
-  return <AuthContext.Provider value={value}>{children}</AuthContext.Provider>;
+  return <AuthContext.Provider value={value}>
+    
+    {children}
+  
+    <WelcomeDialog
+        open={showWelcomeDialog}
+        onClose={() => setShowWelcomeDialog(false)}
+        userData={userData}
+      />
+  </AuthContext.Provider>;
 };

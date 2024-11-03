@@ -14,6 +14,7 @@ import NavItem from "./NavItem";
  const MainListItems = () => (
   <React.Fragment>
     <NavItem to="/admin/dashboard" icon={<DashboardIcon />} primary="Dashboard" />
+    <NavItem to="/admin/subjects" icon={<CategoryIcon />} primary="Subjects" />
     <NavItem to="/admin/categories" icon={<CategoryIcon />} primary="Category" />
     <NavItem to="/admin/authors" icon={<FaceIcon />} primary="Authors" />
     <NavItem to="/admin/books" icon={<LibraryBooksIcon />} primary="Books" />

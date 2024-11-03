@@ -8,6 +8,7 @@ import AdminDashboard from "./Components/Pages/Admin/Dashboard.jsx";
 import Categories from "./Components/Pages/Admin/Categories.jsx";
 import Authors from "./Components/Pages/Admin/Author.jsx";
 import Books from "./Components/Pages/Admin/Books.jsx";
+import Subjects from "./Components/Pages/Admin/Subject.jsx";
 import SignUp from "./Signup.jsx";
 import ProtectedRoute from "./Components/Auth/ProtectedRoute.jsx";
 import Unauthorized from "./Components/Pages/Unathorized.jsx";
@@ -65,6 +66,10 @@ const router = createBrowserRouter([
           {
             path: "categories",
             element: <Categories />,
+          },
+          {
+            path: "subjects",
+            element: <Subjects/>,
           },
           {
             path: "authors",
