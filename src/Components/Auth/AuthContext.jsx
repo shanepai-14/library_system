@@ -66,11 +66,12 @@ export const AuthProvider = ({ children }) => {
           
           // Update all fields except profile_picture
           Object.keys(updatedFields).forEach(key => {
-            if (key !== 'profile_picture') {
+            if (key !== 'profile_picture' && 
+                key !== 'old_password' && 
+                key !== 'new_password') {
               updatedUserData[key] = updatedFields[key];
             }
           });
-          
           // If there's a profile_picture in the response, update it
           if (res.data.user.profile_picture) {
             updatedUserData.profile_picture = res.data.user.profile_picture;
@@ -94,14 +95,31 @@ export const AuthProvider = ({ children }) => {
       })
       .catch((error) => {
         console.error('Error updating user data:', error);
-  
-        Swal.fire({
-          title: "Error!",
-          text: error.response?.data?.message || "Failed to update user data. Please try again.",
-          icon: "error",
-          confirmButtonText: "OK",
-        });
-  
+      
+        // Check if there are validation errors
+        if (error.response?.data?.errors) {
+          // Combine all error messages into a single string
+          const errorMessages = Object.values(error.response.data.errors)
+            .flat()
+            .map(message => `• ${message}`)
+            .join('\n');
+      
+          Swal.fire({
+            title: "Validation Error",
+            html: `<div style="text-align: left;">${errorMessages}</div>`,
+            icon: "error",
+            confirmButtonText: "OK",
+          });
+        } else {
+          // Show generic error for non-validation errors
+          Swal.fire({
+            title: "Error!",
+            text: error.response?.data?.message || "Failed to update user data. Please try again.",
+            icon: "error",
+            confirmButtonText: "OK",
+          });
+        }
+      
         return false;
       });
   };

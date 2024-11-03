@@ -3,7 +3,6 @@ import {
   Typography,
   Grid,
   Avatar,
-  IconButton,
   Box,
   TextField,
   Button,
@@ -18,19 +17,27 @@ import {
   DialogTitle,
   DialogContent,
   DialogActions,
-  LinearProgress,
+  IconButton,
+  InputAdornment,
+  MenuItem
 } from "@mui/material";
 import QRCode from "react-qr-code";
 import { formatDate } from "../../../Utils/helper.jsx";
 import { useAuth } from "../../Auth/AuthContext.jsx";
 import html2canvas from "html2canvas";
 import { useNavigate } from "react-router-dom";
+import { DatePicker } from '@mui/x-date-pickers';
+import { AdapterDayjs } from '@mui/x-date-pickers/AdapterDayjs';
+import { LocalizationProvider } from '@mui/x-date-pickers/LocalizationProvider';
+import dayjs from 'dayjs';
 import {
   Edit as EditIcon,
   Save as SaveIcon,
   PhotoCamera as CameraIcon,
   Download as DownloadIcon,
   Cancel as CancelIcon,
+  VisibilityOff,
+  Visibility,
 } from "@mui/icons-material";
 import Webcam from 'react-webcam';
 import Swal from "sweetalert2";
@@ -45,9 +52,18 @@ const StudentAccount = () => {
   const webcamRef = useRef(null);
   const fileInputRef = useRef(null);
   const [newProfilePic, setNewProfilePic] = useState(null);
+  const [showPasswords, setShowPasswords] = useState({
+    oldPassword: false,
+    newPassword: false
+  });
 
-  console.log(userData);
-  console.log(userData.profile_picture);
+  const handleTogglePassword = (field) => {
+    setShowPasswords(prev => ({
+      ...prev,
+      [field]: !prev[field]
+    }));
+  };
+  
 
   const handleInputChange = (field) => (event) => {
     setEditedData(prev => ({
@@ -67,17 +83,12 @@ const StudentAccount = () => {
     setNewProfilePic(null);
   };
 
+  
   const handleSave = () => {
     const userID = userData.id;
     updateUserData(editedData, userID)
       .then((updatedUserData) => {
         setIsEditing(false);
-        Swal.fire({
-          title: "Success!",
-          text: "Profile updated successfully",
-          icon: "success",
-          confirmButtonText: "OK",
-        });
         if (updatedUserData.role === "admin") {
           navigate("/admin/account");
         } else if (updatedUserData.role === "student") {
@@ -138,9 +149,14 @@ const StudentAccount = () => {
   };
 
   return (
-    <Box sx={{ p: 3, backgroundColor: 'grey.100', minHeight: '100vh' }}>
+    <Box sx={{ p: 3, backgroundColor: "grey.100", minHeight: "100vh" }}>
       <Paper elevation={0} sx={{ p: 3, borderRadius: 2, mb: 3 }}>
-        <Box display="flex" justifyContent="space-between" alignItems="center" mb={3}>
+        <Box
+          display="flex"
+          justifyContent="space-between"
+          alignItems="center"
+          mb={3}
+        >
           <Typography variant="h4" fontWeight="bold">
             {userData.role === "admin" ? "Account" : "Student"} Profile
           </Typography>
@@ -178,7 +194,7 @@ const StudentAccount = () => {
         <Grid container spacing={4}>
           {/* Profile Section */}
           <Grid item xs={12} md={4} lg={3}>
-            <Card sx={{ textAlign: 'center', position: 'relative' }}>
+            <Card sx={{ textAlign: "center", position: "relative" }}>
               <CardContent>
                 <input
                   type="file"
@@ -190,14 +206,14 @@ const StudentAccount = () => {
                 <Box position="relative" display="inline-block">
                   <Badge
                     overlap="circular"
-                    anchorOrigin={{ vertical: 'bottom', horizontal: 'right' }}
+                    anchorOrigin={{ vertical: "bottom", horizontal: "right" }}
                     badgeContent={
                       isEditing && (
                         <Stack direction="row" spacing={1}>
                           <IconButton
                             size="small"
                             color="primary"
-                            sx={{ bgcolor: 'white' }}
+                            sx={{ bgcolor: "white" }}
                             onClick={() => fileInputRef.current.click()}
                           >
                             <EditIcon fontSize="small" />
@@ -205,7 +221,7 @@ const StudentAccount = () => {
                           <IconButton
                             size="small"
                             color="primary"
-                            sx={{ bgcolor: 'white' }}
+                            sx={{ bgcolor: "white" }}
                             onClick={() => setShowCamera(true)}
                           >
                             <CameraIcon fontSize="small" />
@@ -215,16 +231,18 @@ const StudentAccount = () => {
                     }
                   >
                     <Avatar
-                      src={newProfilePic || `http://127.0.0.1:8000/storage/${userData.profile_picture}`}
-                      sx={{ 
-                        width: 150, 
+                      src={
+                        newProfilePic ||
+                        `http://127.0.0.1:8000/storage/${userData.profile_picture}`
+                      }
+                      sx={{
+                        width: 150,
                         height: 150,
                         border: 3,
-                        borderColor: 'primary.main',
-                        mb: 2
+                        borderColor: "primary.main",
+                        mb: 2,
                       }}
                     >
-                 
                       {userData.first_name[0]}
                       {userData.last_name[0]}
                     </Avatar>
@@ -237,19 +255,19 @@ const StudentAccount = () => {
                         fullWidth
                         label="First Name"
                         value={editedData.first_name}
-                        onChange={handleInputChange('first_name')}
+                        onChange={handleInputChange("first_name")}
                       />
                       <TextField
                         fullWidth
                         label="Middle Name"
                         value={editedData.middle_name}
-                        onChange={handleInputChange('middle_name')}
+                        onChange={handleInputChange("middle_name")}
                       />
                       <TextField
                         fullWidth
                         label="Last Name"
                         value={editedData.last_name}
-                        onChange={handleInputChange('last_name')}
+                        onChange={handleInputChange("last_name")}
                       />
                     </Stack>
                   ) : (
@@ -275,7 +293,7 @@ const StudentAccount = () => {
             <Card>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
-                  Personal Information      {userData.profile_picture}
+                  Personal Information {userData.profile_picture}
                 </Typography>
                 <Stack spacing={3}>
                   <TextField
@@ -287,22 +305,47 @@ const StudentAccount = () => {
                   <TextField
                     fullWidth
                     label="Contact Number"
-                    value={isEditing ? editedData.contact_number : userData.contact_number}
-                    onChange={handleInputChange('contact_number')}
+                    value={
+                      isEditing
+                        ? editedData.contact_number
+                        : userData.contact_number
+                    }
+                    onChange={handleInputChange("contact_number")}
                     disabled={!isEditing}
                   />
+                 <LocalizationProvider dateAdapter={AdapterDayjs}>
+                <DatePicker
+                  label="Birthday"
+                  value={isEditing ? dayjs(editedData.birthday) : dayjs(userData.birthday)}
+                  disabled={!isEditing}
+                  onChange={(newValue) => {
+                    handleInputChange("birthday")({ 
+                      target: { 
+                        value: newValue ? newValue.format('YYYY-MM-DD') : null 
+                      } 
+                    });
+                  }}
+                  slotProps={{
+                    textField: {
+                      fullWidth: true
+                    }
+                  }}
+                  format="MM/DD/YYYY"
+                  maxDate={dayjs()} // Prevents future dates
+                />
+              </LocalizationProvider>
                   <TextField
-                    fullWidth
-                    label="Birthday"
-                    value={formatDate(userData.birthday, false)}
-                    disabled
-                  />
-                  <TextField
+                    select
                     fullWidth
                     label="Gender"
-                    value={userData.gender}
-                    disabled
-                  />
+                    onChange={handleInputChange("gender")}
+                    value={isEditing ? editedData.gender : userData.gender}
+                    disabled={!isEditing}
+                  >
+                    <MenuItem value="Male">Male</MenuItem>
+                    <MenuItem value="Female">Female</MenuItem>
+                    <MenuItem value="Other">Other</MenuItem>
+                  </TextField>
                 </Stack>
               </CardContent>
             </Card>
@@ -310,26 +353,59 @@ const StudentAccount = () => {
             <Card sx={{ mt: 3 }}>
               <CardContent>
                 <Typography variant="h6" gutterBottom>
-                  Account Information
+                  Change Password
                 </Typography>
                 <Stack spacing={3}>
                   <TextField
                     fullWidth
-                    label="Created At"
-                    value={formatDate(userData.created_at, false)}
-                    disabled
+                    label="Old Password"
+                    type={showPasswords.oldPassword ? "text" : "password"}
+                    onChange={handleInputChange("old_password")}
+                    value={isEditing ? editedData.old_password : null}
+                    disabled={!isEditing}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => handleTogglePassword("oldPassword")}
+                            edge="end"
+                            disabled={!isEditing}
+                          >
+                            {showPasswords.oldPassword ? (
+                              <VisibilityOff />
+                            ) : (
+                              <Visibility />
+                            )}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
                   />
+
                   <TextField
                     fullWidth
-                    label="Updated At"
-                    value={formatDate(userData.updated_at, false)}
-                    disabled
-                  />
-                  <TextField
-                    fullWidth
-                    label="Email Verified At"
-                    value={formatDate(userData.email_verified_at, false)}
-                    disabled
+                    label="New Password"
+                    type={showPasswords.newPassword ? "text" : "password"}
+                    onChange={handleInputChange("new_password")}
+                    value={isEditing ? editedData.new_password : null}
+                    disabled={!isEditing}
+                    InputProps={{
+                      endAdornment: (
+                        <InputAdornment position="end">
+                          <IconButton
+                            onClick={() => handleTogglePassword("newPassword")}
+                            edge="end"
+                            disabled={!isEditing}
+                          >
+                            {showPasswords.newPassword ? (
+                              <VisibilityOff />
+                            ) : (
+                              <Visibility />
+                            )}
+                          </IconButton>
+                        </InputAdornment>
+                      ),
+                    }}
                   />
                 </Stack>
               </CardContent>
@@ -347,11 +423,11 @@ const StudentAccount = () => {
                   <Box
                     ref={qrBoxRef}
                     sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      alignItems: 'center',
+                      display: "flex",
+                      flexDirection: "column",
+                      alignItems: "center",
                       gap: 2,
-                      py: 2
+                      py: 2,
                     }}
                   >
                     <QRCode value={userData.id_number} size={200} />
@@ -385,11 +461,11 @@ const StudentAccount = () => {
         >
           <DialogTitle>Take Photo</DialogTitle>
           <DialogContent>
-            <Box sx={{ position: 'relative', width: '100%', height: 400 }}>
+            <Box sx={{ position: "relative", width: "100%", height: 400 }}>
               <Webcam
                 ref={webcamRef}
                 screenshotFormat="image/jpeg"
-                style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+                style={{ width: "100%", height: "100%", objectFit: "cover" }}
               />
             </Box>
           </DialogContent>
