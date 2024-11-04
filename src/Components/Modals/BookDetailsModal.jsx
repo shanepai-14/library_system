@@ -174,11 +174,6 @@ const BookDetailsModal = ({ open, onClose, book }) => {
                   value={`₱${parseFloat(book.book_price).toLocaleString()}`}
                 />
 
-                <InfoRow
-                  icon={<LibraryIcon color="primary" />}
-                  label="Publisher"
-                  value={book.publisher}
-                />
               </Box>
 
               {book.description && (
@@ -188,7 +183,7 @@ const BookDetailsModal = ({ open, onClose, book }) => {
                     Description
                   </Typography>
                   <Typography variant="body2" color="text.secondary">
-                    {book.description ?? ''}
+                    {book.description == null ? book.description : 'None'}
                   </Typography>
                 </>
               )}

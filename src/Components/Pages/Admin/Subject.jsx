@@ -138,8 +138,8 @@ const Subjects = () => {
     });
   };
 
-  const createableColumns = ["code", "name", "description", "year_level", "department", "semester"];
-  const editableColumns = ["code", "name", "description", "year_level", "department", "semester"];
+  const createableColumns = ["code", "name", "description", "department","year_level",  "semester"];
+  const editableColumns = ["code", "name", "description","department", "year_level",  "semester"];
   const subjectHeader = [
     { headerName: "Code", align: "left", accessor: "code" },
     { headerName: "Name", align: "left", accessor: "name" },

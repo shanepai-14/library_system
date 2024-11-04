@@ -107,6 +107,7 @@ const SubjectModal = ({ open, handleClose, setRefresh }) => {
                         margin="normal"
                         required
                     />
+                    
                     <TextField
                         fullWidth
                         label="Description"
@@ -138,6 +139,7 @@ const SubjectModal = ({ open, handleClose, setRefresh }) => {
                         <MenuItem value="THEO">Theology</MenuItem>
                         <MenuItem value="SENIORHIGH">SENIOR HIGH</MenuItem>
                     </TextField>
+     
                     <TextField
                         select
                         fullWidth
