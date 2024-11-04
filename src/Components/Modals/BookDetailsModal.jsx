@@ -1,4 +1,3 @@
-
 import React from 'react';
 import {
   Dialog,
@@ -23,7 +22,8 @@ import {
   DateRange as DateRangeIcon,
   LocalLibrary as LibraryIcon,
   AttachMoney as MoneyIcon,
-  Bookmark as BookmarkIcon
+  Bookmark as BookmarkIcon,
+  School as SchoolIcon
 } from '@mui/icons-material';
 import noImage from '../../assets/No-Image-Placeholder.svg'
 
@@ -98,7 +98,7 @@ const BookDetailsModal = ({ open, onClose, book }) => {
                   image={`http://127.0.0.1:8000/storage/${book.image}`}
                   alt={book.title}
                   onError={(e) => {
-                    e.target.src = noImage; // Fallback image
+                    e.target.src = noImage;
                   }}
                 />
               </Card>
@@ -173,7 +173,6 @@ const BookDetailsModal = ({ open, onClose, book }) => {
                   label="Price"
                   value={`₱${parseFloat(book.book_price).toLocaleString()}`}
                 />
-
               </Box>
 
               {book.description && (
@@ -186,6 +185,63 @@ const BookDetailsModal = ({ open, onClose, book }) => {
                     {book.description == null ? book.description : 'None'}
                   </Typography>
                 </>
+              )}
+
+              {/* Recommended Subjects Section */}
+              <Divider sx={{ my: 2 }} />
+              <Typography variant="h6" gutterBottom color="primary" sx={{ display: 'flex', alignItems: 'center', gap: 1 }}>
+                <SchoolIcon />
+                Recommended Subjects
+              </Typography>
+              
+              {book.subjects_info && book.subjects_info.length > 0 ? (
+                <Box>
+                  {book.subjects_info.map((subject, index) => (
+                    <Card
+                      key={subject.id}
+                      elevation={0}
+                      sx={{
+                        mb: 1,
+                        p: 1.5,
+                        bgcolor: 'grey.50',
+                        borderRadius: 2,
+                        '&:hover': { bgcolor: 'grey.100' }
+                      }}
+                    >
+                      <Stack spacing={1}>
+                        <Box display="flex" justifyContent="space-between" alignItems="center">
+                          <Typography variant="subtitle2" color="primary">
+                            {subject.code} - {subject.name}
+                          </Typography>
+                          <Chip
+                            label={subject.year_level}
+                            size="small"
+                            color="primary"
+                            variant="outlined"
+                          />
+                        </Box>
+                        <Box display="flex" gap={1}>
+                          <Chip
+                            label={subject.department}
+                            size="small"
+                            color="secondary"
+                            variant="outlined"
+                          />
+                          <Chip
+                            label={`${subject.semester} Semester`}
+                            size="small"
+                            color="info"
+                            variant="outlined"
+                          />
+                        </Box>
+                      </Stack>
+                    </Card>
+                  ))}
+                </Box>
+              ) : (
+                <Typography variant="body2" color="text.secondary">
+                  No recommended subjects available
+                </Typography>
               )}
 
               <Divider sx={{ my: 2 }} />
@@ -208,4 +264,3 @@ const BookDetailsModal = ({ open, onClose, book }) => {
 };
 
 export default BookDetailsModal;
-

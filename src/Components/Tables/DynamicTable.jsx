@@ -147,6 +147,54 @@ const exportToExcel = (data, columnsData) => {
   XLSX.writeFile(wb, 'table-data.xlsx');
 };
 
+function BarcodeComponent({ value }) {
+  const barcodeRef = React.useRef(null);
+
+  const handleDownload = () => {
+    if (barcodeRef.current) {
+      const svg = barcodeRef.current.querySelector('svg');
+      if (svg) {
+        // Convert SVG to a data URL
+        const svgData = new XMLSerializer().serializeToString(svg);
+        const canvas = document.createElement('canvas');
+        const ctx = canvas.getContext('2d');
+        const img = new Image();
+
+        img.onload = () => {
+          const scaleFactor = 3; // Adjust this value as needed
+          canvas.width = img.width * scaleFactor;
+          canvas.height = img.height * scaleFactor;
+
+          // Scale the context
+          ctx.scale(scaleFactor, scaleFactor);
+          ctx.drawImage(img, 0, 0);
+
+          // Create PNG data URL
+          const pngUrl = canvas.toDataURL('image/png');
+
+          // Create a download link
+          const link = document.createElement('a');
+          link.href = pngUrl;
+          link.download = `${value}-barcode.png`;
+          document.body.appendChild(link);
+          link.click();
+          document.body.removeChild(link);
+        };
+
+        img.src = 'data:image/svg+xml;base64,' + btoa(svgData);
+      }
+    }
+  };
+
+  return value ? (
+    <div ref={barcodeRef} onClick={handleDownload} style={{ cursor: 'pointer' }}>
+      <Barcode value={value} width={1} height={30} />
+    </div>
+  ) : (
+    "No ISBN"
+  );
+}
+
 const renderCellContent = (accessor, value,row) => {
   switch (accessor) {
     case "student_name":
@@ -170,7 +218,7 @@ const renderCellContent = (accessor, value,row) => {
       );
     case "isbn":
       return value ? (
-        <Barcode value={value} width={1} height={30} />
+       <BarcodeComponent value={value}/> 
       ) : (
         "No ISBN"
       );
