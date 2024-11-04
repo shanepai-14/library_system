@@ -5,7 +5,7 @@ import {
   getBooks,
   getUsers,
   showUser,
-  showBook } from "../../Utils/endpoint";
+  showBook , allSubjects} from "../../Utils/endpoint";
 import {
   Modal,
   Box,
@@ -19,6 +19,9 @@ import {
   Autocomplete,
   CircularProgress,
   MenuItem,
+  Paper,
+  Chip
+
 } from "@mui/material";
 import debounce from "lodash/debounce";
 import { DatePicker } from '@mui/x-date-pickers/DatePicker';
@@ -28,6 +31,7 @@ import api from "../../Utils/interceptor";
 import noImage from "../../../src/assets/No-Image-Placeholder.svg"
 import Swal from "sweetalert2";
 import dayjs from 'dayjs';
+
 
 const EditModal = ({
   open,
@@ -47,6 +51,8 @@ const EditModal = ({
   const [fileName, setFileName] = useState("");
   const [authors, setAuthors] = useState([]);
   const [categories, setCategories] = useState([]);
+  const [subjects, setSubjects] = useState([]);
+  const [selectedSubjects, setSelectedSubjects] = useState([]);
   const [options, setOptions] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedBook, setSelectedBook] = useState(null);
@@ -64,6 +70,16 @@ const EditModal = ({
     if (title === "Edit Book") {
       fetchAuthors();
       fetchCategory();
+      fetchSubjects();
+      
+      // Set initial selected subjects if they exist
+      if (rowData.subjects_info) {
+        setSelectedSubjects(rowData.subjects_info);
+        setEditedData(prev => ({
+          ...prev,
+          subject_ids: rowData.subjects_info.map(subject => subject.id)
+        }));
+      }
     }
 
     if (title === "Issue Book") {
@@ -72,7 +88,7 @@ const EditModal = ({
       fetchCurrentBook(editedData.book_id);
       fetchCurrentUser(editedData.user_id);
     }
-  }, []);
+  }, [rowData]);
 
   const fetchCurrentBook = (id) => {
     api.get(showBook(id))
@@ -142,6 +158,22 @@ const EditModal = ({
       })
       .finally(() => {
         setLoading(false);
+      });
+  };
+
+  const fetchSubjects = () => {
+    api.get(allSubjects())
+      .then((res) => {
+        setSubjects(res.data);
+      })
+      .catch((err) => {
+        console.error("Error fetching subjects:", err);
+        Swal.fire({
+          title: "Error!",
+          text: "Failed to fetch subjects. Please try again.",
+          icon: "error",
+          confirmButtonText: "OK",
+        });
       });
   };
 
@@ -216,6 +248,14 @@ const EditModal = ({
       [name]: checked ? "Active" : "Inactive",
     }));
   };
+  const handleSubjectChange = (event, newValue) => {
+    setSelectedSubjects(newValue);
+    setEditedData(prev => ({
+      ...prev,
+      subject_ids: newValue.map(subject => subject.id)
+    }));
+  };
+
 
   const handleFileChange = (event) => {
     const file = event.target.files[0];
@@ -455,6 +495,53 @@ const EditModal = ({
             views={['year', 'month', 'day']}
           />
         );
+        case "subject_ids":
+        return (
+          <Paper elevation={2} sx={{ p: 2, mt: 2 }} key={key}>
+            <Typography variant="subtitle1" sx={{ mb: 2 }}>
+              Recommended Subjects
+            </Typography>
+            <Autocomplete
+              multiple
+              options={subjects}
+              value={selectedSubjects}
+              onChange={handleSubjectChange}
+              groupBy={(option) => option.department}
+              getOptionLabel={(option) => `${option.code} - ${option.name}`}
+              renderInput={(params) => (
+                <TextField
+                  {...params}
+                  label="Select Subjects"
+                  placeholder="Search subjects..."
+                  variant="outlined"
+                />
+              )}
+              renderTags={(tagValue, getTagProps) =>
+                tagValue.map((option, index) => (
+                  <Chip
+                    label={`${option.code} - ${option.name}`}
+                    {...getTagProps({ index })}
+                    sx={{ 
+                      m: 0.5,
+                      bgcolor: 'primary.light',
+                      color: 'primary.contrastText'
+                    }}
+                  />
+                ))
+              }
+              renderOption={(props, option) => (
+                <Box component="li" {...props} sx={{ p: 2 }}>
+                  <Typography variant="subtitle1" fontWeight="medium">
+                    {`${option.code} - ${option.name}`}
+                  </Typography>
+                  <Typography variant="body2" color="text.secondary">
+                    Year {option.year_level} | {option.department} | {option.semester} Semester
+                  </Typography>
+                </Box>
+              )}
+            />
+          </Paper>
+        );
 
       default:
         return (
@@ -525,24 +612,24 @@ const EditModal = ({
 
         <Grid container justifyContent="right" sx={{ marginTop: "20px" }}>
           <Button
-          variant="contained"
-          color="success"
-          sx={{ marginRight: "10px" }}
-          onClick={onSave}
-        >
-          Save
-        </Button>
-        <Button 
-          variant="contained" 
-          color="error" 
-          onClick={handleClose}
-        >
-          Cancel
-        </Button>
-      </Grid>
-    </Box>
-  </Modal>
-);
+            variant="contained"
+            color="success"
+            sx={{ marginRight: "10px" }}
+            onClick={onSave}
+          >
+            Save
+          </Button>
+          <Button 
+            variant="contained" 
+            color="error" 
+            onClick={handleClose}
+          >
+            Cancel
+          </Button>
+        </Grid>
+      </Box>
+    </Modal>
+  );
 };
 
 export default EditModal;

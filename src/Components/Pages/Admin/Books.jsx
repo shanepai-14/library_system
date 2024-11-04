@@ -42,6 +42,8 @@ const Books = () => {
                 author: item.author ? item.author.name : '',
                 category: item.category ? item.category.name : '',
                 shelve_no: item.category ? item.category.shelve_no : '',
+                subject_ids : item.subjects_info ? item.subjects_info : [],
+
             }));
 
             return {
@@ -103,22 +105,25 @@ const Books = () => {
         mutationFn: async (editedData) => {
             const formData = new FormData();
             
-            // Append all fields except image
+            // Append all fields except image and subject_ids
             Object.keys(editedData).forEach(key => {
-                if (key !== 'image') {
+                if (key === 'subject_ids') {
+                    // Handle array of subject IDs
+                    editedData[key].forEach((subjectId, index) => {
+                        formData.append(`subject_ids[${index}]`, subjectId);
+                    });
+                } else if (key === 'image') {
+                    // Handle image upload
+                    if (editedData.image instanceof Blob) {
+                        formData.append('image', editedData.image, editedData.image.name);
+                    }
+                } else if (key !== 'subjects_info') { // Skip subjects_info as it's just for display
                     formData.append(key, editedData[key]);
                 }
             });
-
-            // Handle image upload
-            if (editedData.image) {
-                if (editedData.image instanceof Blob) {
-                    formData.append('image', editedData.image, editedData.image.name);
-                }
-            }
-
+    
             formData.append('_method', 'PUT');
-
+    
             return api.post(updateBooks(editedData.id), formData, {
                 headers: { 'Content-Type': 'multipart/form-data' }
             });
@@ -194,6 +199,7 @@ const Books = () => {
     };
 
     const viewOnClick = (row) => {
+        console.log(row);
         setViewData(row);
         setIsViewModalOpen(true);
     };
@@ -214,7 +220,7 @@ const Books = () => {
     }
 
    
-    const editableColumns = ["title", "book_price", "total_copies", "isbn", "publication_year", "author_id", "category_id", "image"];
+    const editableColumns = ["title", "book_price", "total_copies", "isbn", "publication_year", "author_id", "category_id", "image","subject_ids"];
     const BookLoanHeader = [
         { headerName: "Borrower", align: "left", accessor: "user" },
         { headerName: "ISBN", align: "left", accessor: "isbn" },
