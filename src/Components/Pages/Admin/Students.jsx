@@ -133,6 +133,7 @@ const Students = () => {
             />
 
             <UserPasswordRecovery
+                editPassword={true}
                 open={isViewModalOpen}
                 handleClose={() => {
                     setIsViewModalOpen(false);

@@ -8,12 +8,15 @@ import LibraryAnalyticsDashboard from '../../Charts/LibraryAnalyticsDashboard';
 import DailyAttendanceChart from '../../Charts/DailyAttendanceChart';
 import MonthlyAttendanceChart from '../../Charts/MonthlyAttendanceChart';
 import WeeklyAttendanceChart from '../../Charts/WeeklyAttendanceChart';
+import UserPasswordRecovery from '../../Modals/UserPasswordRecovery';
 import { Grid } from '@mui/material';
 
 const AttendancePage = () => {
     const [page, setPage] = useState(1);
     const [row, setRow] = useState(10);
     const [search, setSearch] = useState('');
+    const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+    const [viewData, setViewData] = useState('');
 
     // Main query for fetching attendance data
     const {
@@ -50,6 +53,11 @@ const AttendancePage = () => {
     const handleSearchChange = (val) => {
         setSearch(val);
         setPage(1);
+    };
+
+    const viewOnClick = (row) => {
+        setViewData(row);
+        setIsViewModalOpen(true);
     };
 
     // Error handling for main query
@@ -95,9 +103,10 @@ const AttendancePage = () => {
             <DataTable
                 columnsData={AttendanceHeader}
                 data={attendanceData?.data ?? []}
+                viewEyeOnClick={viewOnClick}
                 showStatus={false}
                 showAllRows={true}
-                showVIewIcon={false}
+                showVIewIcon={true}
                 showLoading={isLoading}
                 onSearch={handleSearchChange}
                 rowsPerPage={row}
@@ -106,6 +115,15 @@ const AttendancePage = () => {
                 setRowsPerPage={setRow}
                 setChangePage={setPage}
                 marginTop={"2px"}
+            />
+
+        <UserPasswordRecovery
+                open={isViewModalOpen}
+                handleClose={() => {
+                    setIsViewModalOpen(false);
+                    setViewData('');
+                }}
+                userId={viewData.id}
             />
         </>
     );

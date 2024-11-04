@@ -1,6 +1,5 @@
-
 import api from '../../Utils/interceptor';
-import { viewPassword , updatePassword } from '../../Utils/endpoint';
+import { viewPassword, updatePassword } from '../../Utils/endpoint';
 import React, { useState, useEffect } from 'react';
 import { 
   TextField, 
@@ -11,7 +10,10 @@ import {
   InputAdornment,
   Modal,
   CircularProgress,
-  Divider
+  Divider,
+  Grid,
+  Chip,
+  Avatar
 } from '@mui/material';
 import { Visibility, VisibilityOff, Close as CloseIcon } from '@mui/icons-material';
 import Swal from 'sweetalert2';
@@ -22,14 +24,16 @@ const modalStyle = {
   left: '50%',
   transform: 'translate(-50%, -50%)',
   width: '90%',
-  maxWidth: 500,
+  maxWidth: 800,
   bgcolor: 'background.paper',
   boxShadow: 24,
   borderRadius: 1,
   p: 4,
+  maxHeight: '90vh',
+  overflow: 'auto'
 };
 
-const UserPasswordRecovery = ({ userId, open, handleClose }) => {
+const UserPasswordRecovery = ({ userId, open, handleClose , editPassword = false }) => {
   const [userData, setUserData] = useState(null);
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
@@ -43,7 +47,6 @@ const UserPasswordRecovery = ({ userId, open, handleClose }) => {
     }
   }, [open, userId]);
 
-  // Reset form when modal closes
   useEffect(() => {
     if (!open) {
       setNewPassword('');
@@ -84,7 +87,6 @@ const UserPasswordRecovery = ({ userId, open, handleClose }) => {
   };
 
   const handleUpdatePassword = async () => {
-    // Validate passwords
     if (newPassword !== confirmPassword) {
       Swal.fire({
         title: "Error!",
@@ -121,7 +123,6 @@ const UserPasswordRecovery = ({ userId, open, handleClose }) => {
         icon: "success",
         showConfirmButton: false,
         didOpen: () => {
-          // Add event listener to copy button
           const copyButton = document.getElementById('copyButton');
           copyButton.addEventListener('click', () => {
             navigator.clipboard.writeText(newPassword).then(() => {
@@ -137,7 +138,6 @@ const UserPasswordRecovery = ({ userId, open, handleClose }) => {
         }
       });
 
-      // Reset form and close modal
       setNewPassword('');
       setConfirmPassword('');
       handleClose();
@@ -163,6 +163,14 @@ const UserPasswordRecovery = ({ userId, open, handleClose }) => {
     handleClose();
   };
 
+  const formatDate = (dateString) => {
+    return new Date(dateString).toLocaleDateString('en-US', {
+      year: 'numeric',
+      month: 'long',
+      day: 'numeric'
+    });
+  };
+
   return (
     <Modal
       open={open}
@@ -171,7 +179,14 @@ const UserPasswordRecovery = ({ userId, open, handleClose }) => {
     >
       <Box sx={modalStyle}>
         {/* Header */}
-        <Box sx={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', mb: 3 }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "space-between",
+            alignItems: "center",
+            mb: 3,
+          }}
+        >
           <Typography variant="h6" component="h2">
             Update User Password
           </Typography>
@@ -182,95 +197,286 @@ const UserPasswordRecovery = ({ userId, open, handleClose }) => {
 
         {/* Content */}
         {loading ? (
-          <Box sx={{ display: 'flex', justifyContent: 'center', my: 3 }}>
+          <Box sx={{ display: "flex", justifyContent: "center", my: 3 }}>
             <CircularProgress />
           </Box>
         ) : userData ? (
           <Box>
-            {/* User Info */}
-            <TextField
-              fullWidth
-              label="Name"
-              value={`${userData.first_name} ${userData.last_name}`}
-              disabled
-              sx={{ mb: 2 }}
-              size="small"
-            />
-            
-            <TextField
-              fullWidth
-              label="Email"
-              value={userData.email}
-              disabled
-              sx={{ mb: 3 }}
-              size="small"
-            />
+            {/* Profile Picture */}
+            <Box sx={{ display: "flex", justifyContent: "center", mb: 3 }}>
+              <Avatar
+                src={
+                  userData.profile_picture
+                    ? `http://127.0.0.1:8000/storage/${userData.profile_picture}`
+                    : undefined
+                }
+                sx={{
+                  width: 150,
+                  height: 150,
+                  border: 3,
+                  borderColor: "primary.main",
+                  fontSize: "3rem",
+                }}
+              >
+                {userData.first_name[0]}
+                {userData.last_name[0]}
+              </Avatar>
+            </Box>
 
-            <Divider sx={{ my: 2 }} />
+            {/* User Info Sections */}
+            <Box sx={{ mb: 3 }}>
+              <Typography
+                variant="subtitle1"
+                sx={{ mb: 2, fontWeight: "bold" }}
+              >
+                Personal Information
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="ID Number"
+                    value={userData.id_number}
+                    disabled
+                    size="small"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <Box sx={{ display: "flex", gap: 1 }}>
+                    <Chip
+                      label={userData.role.toUpperCase()}
+                      color="primary"
+                      size="small"
+                      sx={{ textTransform: "capitalize" }}
+                    />
+                    <Chip
+                      label={userData.course}
+                      color="secondary"
+                      size="small"
+                    />
+                    <Chip
+                      label={userData.deleted_at ? "Deactivated" : "Active"}
+                      color={userData.deleted_at ? "error" : "success"}
+                      size="small"
+                    />
+                  </Box>
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    fullWidth
+                    label="First Name"
+                    value={userData.first_name}
+                    disabled
+                    size="small"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    fullWidth
+                    label="Middle Name"
+                    value={userData.middle_name || "N/A"}
+                    disabled
+                    size="small"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={4}>
+                  <TextField
+                    fullWidth
+                    label="Last Name"
+                    value={userData.last_name}
+                    disabled
+                    size="small"
+                  />
+                </Grid>
+              </Grid>
+            </Box>
+
+            <Box sx={{ mb: 3 }}>
+              <Typography
+                variant="subtitle1"
+                sx={{ mb: 2, fontWeight: "bold" }}
+              >
+                Academic Information
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Course"
+                    value={userData.course || "N/A"}
+                    disabled
+                    size="small"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Year Level"
+                    value={userData.year_level || "N/A"}
+                    disabled
+                    size="small"
+                  />
+                </Grid>
+              </Grid>
+            </Box>
+
+            <Box sx={{ mb: 3 }}>
+              <Typography
+                variant="subtitle1"
+                sx={{ mb: 2, fontWeight: "bold" }}
+              >
+                Contact Information
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Email"
+                    value={userData.email}
+                    disabled
+                    size="small"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Contact Number"
+                    value={userData.contact_number}
+                    disabled
+                    size="small"
+                  />
+                </Grid>
+                <Grid item xs={12}>
+                  <TextField
+                    fullWidth
+                    label="Address"
+                    value={userData.address}
+                    disabled
+                    size="small"
+                    multiline
+                    rows={2}
+                  />
+                </Grid>
+              </Grid>
+            </Box>
+
+            <Box sx={{ mb: 3 }}>
+              <Typography
+                variant="subtitle1"
+                sx={{ mb: 2, fontWeight: "bold" }}
+              >
+                Additional Information
+              </Typography>
+              <Grid container spacing={2}>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Gender"
+                    value={userData.gender}
+                    disabled
+                    size="small"
+                  />
+                </Grid>
+                <Grid item xs={12} sm={6}>
+                  <TextField
+                    fullWidth
+                    label="Birthday"
+                    value={formatDate(userData.birthday)}
+                    disabled
+                    size="small"
+                  />
+                </Grid>
+              </Grid>
+            </Box>
+
+            <Divider sx={{ my: 3 }} />
 
             {/* Password Update Form */}
-            <Typography variant="subtitle2" sx={{ mb: 2 }}>
-              Set New Password
-            </Typography>
+            {editPassword && (
+              <>
+                <Typography
+                  variant="subtitle1"
+                  sx={{ mb: 2, fontWeight: "bold" }}
+                >
+                  Set New Password
+                </Typography>
 
-            <TextField
-              fullWidth
-              label="New Password"
-              type={showPassword ? 'text' : 'password'}
-              value={newPassword}
-              onChange={(e) => setNewPassword(e.target.value)}
-              sx={{ mb: 2 }}
-              size="small"
-              InputProps={{
-                endAdornment: (
-                  <InputAdornment position="end">
-                    <IconButton
-                      onClick={() => setShowPassword(!showPassword)}
-                      edge="end"
+                <Grid container spacing={2}>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="New Password"
+                      type={showPassword ? "text" : "password"}
+                      value={newPassword}
+                      onChange={(e) => setNewPassword(e.target.value)}
                       size="small"
-                    >
-                      {showPassword ? <VisibilityOff /> : <Visibility />}
-                    </IconButton>
-                  </InputAdornment>
-                ),
-              }}
-            />
-
-            <TextField
-              fullWidth
-              label="Confirm Password"
-              type={showPassword ? 'text' : 'password'}
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              sx={{ mb: 2 }}
-              size="small"
-            />
+                      InputProps={{
+                        endAdornment: (
+                          <InputAdornment position="end">
+                            <IconButton
+                              onClick={() => setShowPassword(!showPassword)}
+                              edge="end"
+                              size="small"
+                            >
+                              {showPassword ? (
+                                <VisibilityOff />
+                              ) : (
+                                <Visibility />
+                              )}
+                            </IconButton>
+                          </InputAdornment>
+                        ),
+                      }}
+                    />
+                  </Grid>
+                  <Grid item xs={12} sm={6}>
+                    <TextField
+                      fullWidth
+                      label="Confirm Password"
+                      type={showPassword ? "text" : "password"}
+                      value={confirmPassword}
+                      onChange={(e) => setConfirmPassword(e.target.value)}
+                      size="small"
+                    />
+                  </Grid>
+                </Grid>
+              </>
+            )}
           </Box>
         ) : (
-          <Typography color="text.secondary">
-            No user data available
-          </Typography>
+          <Typography color="text.secondary">No user data available</Typography>
         )}
 
         {/* Footer */}
-        <Box sx={{ mt: 3, display: 'flex', justifyContent: 'flex-end', gap: 2 }}>
-          <Button 
-            onClick={handleModalClose} 
-            variant="outlined"
-            disabled={updating}
-          >
-            Cancel
-          </Button>
-          {userData && (
-            <Button 
-              onClick={handleUpdatePassword}
-              variant="contained"
-              disabled={!newPassword || !confirmPassword || updating}
+        {editPassword && (
+          <>
+            <Box
+              sx={{
+                mt: 3,
+                display: "flex",
+                justifyContent: "flex-end",
+                gap: 2,
+              }}
             >
-              {updating ? 'Updating...' : 'Update Password'}
-            </Button>
-          )}
-        </Box>
+              <Button
+                onClick={handleModalClose}
+                variant="outlined"
+                disabled={updating}
+              >
+                Cancel
+              </Button>
+              {userData && (
+                <Button
+                  onClick={handleUpdatePassword}
+                  variant="contained"
+                  disabled={!newPassword || !confirmPassword || updating}
+                >
+                  {updating ? "Updating..." : "Update Password"}
+                </Button>
+              )}
+            </Box>
+          </>
+        )}
       </Box>
     </Modal>
   );
