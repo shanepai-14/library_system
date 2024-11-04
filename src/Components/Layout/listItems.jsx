@@ -8,13 +8,14 @@ import LibraryBooksIcon from '@mui/icons-material/LibraryBooks';
 import FaceIcon from '@mui/icons-material/Face';
 import AccountCircleIcon from '@mui/icons-material/AccountCircle';
 import AnnouncementIcon from '@mui/icons-material/Announcement';
+import SubjectIcon from '@mui/icons-material/Subject';
 import NavItem from "./NavItem";
 
 
  const MainListItems = () => (
   <React.Fragment>
     <NavItem to="/admin/dashboard" icon={<DashboardIcon />} primary="Dashboard" />
-    <NavItem to="/admin/subjects" icon={<CategoryIcon />} primary="Subjects" />
+    <NavItem to="/admin/subjects" icon={<SubjectIcon />} primary="Subjects" />
     <NavItem to="/admin/categories" icon={<CategoryIcon />} primary="Category" />
     <NavItem to="/admin/authors" icon={<FaceIcon />} primary="Authors" />
     <NavItem to="/admin/books" icon={<LibraryBooksIcon />} primary="Books" />

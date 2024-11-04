@@ -115,6 +115,7 @@ const Students = () => {
                 columnsData={StudentHeader}
                 data={studentsData?.data ?? []}
                 viewOnClick={viewOnClick}
+                viewEyeOnClick={viewOnClick}
                 showStatus={false}
                 showAllRows={false}
                 showVIewIcon={true}

@@ -351,19 +351,31 @@ export default function SignUp() {
     // Create a new FormData object to send to the server
     const formData = new FormData();
     
-    const fields = [
-      'firstName', 'middleName', 'lastName', 'email', 'password', 
+    // Separate required and optional fields
+    const requiredFields = [
+      'firstName', 'lastName', 'email', 'password', 
       'course', 'yearLevel', 'contactNumber', 'gender', 'passwordConfirmation',
       'birthday'
     ];
     
+    const optionalFields = ['middleName'];
+    
     const errors = {};
     
-    fields.forEach(field => {
+    // Validate required fields
+    requiredFields.forEach(field => {
       const value = data.get(field);
       if (!value) {
         errors[field] = 'This field is required';
       } else {
+        formData.append(field.replace(/([A-Z])/g, "_$1").toLowerCase(), value);
+      }
+    });
+  
+    // Handle optional fields
+    optionalFields.forEach(field => {
+      const value = data.get(field);
+      if (value) {
         formData.append(field.replace(/([A-Z])/g, "_$1").toLowerCase(), value);
       }
     });
