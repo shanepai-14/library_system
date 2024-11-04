@@ -285,7 +285,7 @@ const StudentAccount = () => {
                       />
                     </Stack>
                   ) : (
-                    `${userData.first_name} ${userData.middle_name} ${userData.last_name}`
+                    `${userData.first_name} ${userData.middle_name ?? ""} ${userData.last_name}`
                   )}
                 </Typography>
                 <Typography color="textSecondary" gutterBottom>

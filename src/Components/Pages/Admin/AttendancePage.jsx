@@ -123,7 +123,7 @@ const AttendancePage = () => {
                     setIsViewModalOpen(false);
                     setViewData('');
                 }}
-                userId={viewData.id}
+                userId={viewData.user_id}
             />
         </>
     );
